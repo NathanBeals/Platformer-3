@@ -31,6 +31,9 @@ public:
 	bool RequestAnimation(std::string Name);
 	void Update();
 
+	//TODO: Unify naming, pN(XXXX) Pointer+Node but considering they're all local, makes it hard to read (pick one)
+	bool Save();
+
 private:
 	std::string m_FilePath = "Test";
 	int m_XFactor, m_YFactor = 0; //The size in pixels each sprite is on the spritesheet (uniform through the sheet)
@@ -39,12 +42,9 @@ private:
 	std::vector<Animation> m_Animations = std::vector<Animation>();
 	Animation* GetAnimation(std::string Name);
 
-	//TODO: Unify naming, pN(XXXX) Pointer+Node but considering they're all local, makes it hard to read (pick one)
-	bool Save();
-
 	//TODO: remove maybe?
-	std::string GetXMLFilePath() { return m_FilePath + ".png"; }
-	std::string GetPNGFilePath() { return m_FilePath + ".xml"; }
+	std::string GetXMLFilePath() { return m_FilePath + ".xml"; }
+	std::string GetPNGFilePath() { return m_FilePath + ".png"; }
 };
 
 //SpriteSheets are composed of a number of sprite rects of a fixes size, x by y,

@@ -66,7 +66,7 @@ bool SpriteSheet::Save()
 	for (auto x : m_Animations)
 		x.Save(&xmlDoc, pNAnimations);
 
-	XMLError eResult = xmlDoc.SaveFile(m_FilePath.c_str());
+	XMLError eResult = xmlDoc.SaveFile(GetXMLFilePath().c_str());
 	return eResult == 0;
 }
 
