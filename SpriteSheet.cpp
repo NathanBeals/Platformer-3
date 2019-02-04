@@ -33,6 +33,13 @@ Animation * SpriteSheet::GetAnimation(std::string Name)
 
 //TODO: Unify naming, pN(XXXX) Pointer+Node but considering they're all local, makes it hard to read (pick one)
 
+void SpriteSheet::InitTest()
+{
+	m_Animations.push_back(Animation("Testa1", false, 0, 0, 5));
+	m_Animations.push_back(Animation("Testa2", true, 1, 0, 5));
+	m_Animations.push_back(Animation("Testa3", false, 1, 5, 10));
+}
+
 bool SpriteSheet::Save()
 {
 	/*
@@ -64,7 +71,11 @@ bool SpriteSheet::Save()
 	auto *pNAnimations = xmlDoc.NewElement("Animations");
 	pRoot->InsertEndChild(pNAnimations);
 	for (auto x : m_Animations)
-		x.Save(&xmlDoc, pNAnimations);
+	{
+		auto *pNAnim = xmlDoc.NewElement("Animation");
+		pNAnimations->InsertEndChild(pNAnim);
+		x.Save(&xmlDoc, pNAnim);
+	}
 
 	XMLError eResult = xmlDoc.SaveFile(GetXMLFilePath().c_str());
 	return eResult == 0;
@@ -115,18 +126,18 @@ void Animation::Save(tinyxml2::XMLDocument *Doc, tinyxml2::XMLNode * RootNode)
 	RootNode->InsertEndChild(n);
 
 	auto *r = Doc->NewElement("Repeats");
-	r->SetText(r);
+	r->SetText(m_Repeats);
 	RootNode->InsertEndChild(r);
 
 	auto *sr = Doc->NewElement("StartRow");
-	sr->SetText(sr);
+	sr->SetText(m_StartRow);
 	RootNode->InsertEndChild(sr);
 
 	auto *sc = Doc->NewElement("StartCol");
-	sc->SetText(sc);
+	sc->SetText(m_StartCol);
 	RootNode->InsertEndChild(sc);
 
 	auto *fc = Doc->NewElement("FrameCount");
-	fc->SetText(fc);
+	fc->SetText(m_FrameCount);
 	RootNode->InsertEndChild(fc);
 }

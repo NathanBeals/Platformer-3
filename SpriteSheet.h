@@ -32,6 +32,7 @@ public:
 	void Update();
 
 	//TODO: Unify naming, pN(XXXX) Pointer+Node but considering they're all local, makes it hard to read (pick one)
+	void InitTest();
 	bool Save();
 
 private:
