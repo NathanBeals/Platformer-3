@@ -6,6 +6,11 @@ SpriteSheet::SpriteSheet(std::string FilePath)
 	//Load(FilePath);
 }
 
+SpriteSheet::~SpriteSheet()
+{
+	SDL_FreeSurface(m_OptiSurface);
+}
+
 bool SpriteSheet::RequestAnimation(std::string Name)
 {
 	auto anim = GetAnimation(Name);
@@ -32,13 +37,41 @@ Animation * SpriteSheet::GetAnimation(std::string Name)
 	return nullptr;
 }
 
-//TODO: Unify naming, pN(XXXX) Pointer+Node but considering they're all local, makes it hard to read (pick one)
-
-void SpriteSheet::InitTest()
+void SpriteSheet::InitDummyFile()
 {
 	m_Animations.push_back(Animation("Testa1", false, 0, 0, 5));
 	m_Animations.push_back(Animation("Testa2", true, 1, 0, 5));
 	m_Animations.push_back(Animation("Testa3", false, 1, 5, 10));
+}
+
+void SpriteSheet::Init(SDL_Surface* GlobalSurface)
+{
+	auto dingus = IMG_Init(IMG_INIT_PNG);
+	SDL_Surface* tempLoadSurface = IMG_Load(GetPNGFilePath().c_str());
+	if (tempLoadSurface == NULL) return;
+
+	SDL_FreeSurface(m_OptiSurface);
+	m_OptiSurface = SDL_ConvertSurface(tempLoadSurface, GlobalSurface->format, NULL);
+
+	SDL_FreeSurface(tempLoadSurface);
+}
+
+void SpriteSheet::TestRender(SDL_Surface * GlobalSurface, SDL_Renderer * Renderer)
+{
+	SDL_Texture* newtex = SDL_CreateTextureFromSurface(Renderer, m_OptiSurface);
+	SDL_SetTextureBlendMode(newtex, SDL_BLENDMODE_BLEND);
+	//SDL_BlitSurface(m_OptiSurface, NULL, GlobalSurface, NULL);
+	
+	auto myrect = SDL_Rect();
+	myrect.x = 0;
+	myrect.y = 0;
+	myrect.h = 500;
+	myrect.w = 500;
+
+	SDL_RenderCopy(Renderer, newtex, &myrect, &myrect);
+
+	if (newtex != NULL)
+		SDL_DestroyTexture(newtex);
 }
 
 bool SpriteSheet::Save()

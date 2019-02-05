@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SDL.h>
+#include <SDL_image.h>
 #include <string>
 #include <vector>
 #include "tinyxml2.h"
@@ -28,17 +29,23 @@ class SpriteSheet
 {
 public:
 	SpriteSheet(std::string FilePath);
+	~SpriteSheet();
 	bool RequestAnimation(std::string Name);
 	void Update();
 
-	//TODO: Unify naming, pN(XXXX) Pointer+Node but considering they're all local, makes it hard to read (pick one)
-	void InitTest();
+	//Add failure guards
+	void Init(SDL_Surface* GlobalSurface);
+	void TestRender(SDL_Surface * GlobalSurface, SDL_Renderer * Renderer);
 	bool Save();
 	bool Load();
+
+	void InitDummyFile();
 
 private:
 	std::string m_FilePath = "Test";
 	int m_XFactor = 0, m_YFactor = 0; //The size in pixels each sprite is on the spritesheet (uniform through the sheet)
+	SDL_Surface* m_OptiSurface = nullptr;
+
 
 	Animation* m_CurrentAnimation = nullptr;
 	std::vector<Animation> m_Animations = std::vector<Animation>();

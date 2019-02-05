@@ -70,8 +70,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Users\beals_000\source\repos\Project1\Project1;C:\Users\beals_000\Desktop\SDL2Dir\SDL2-2.0.9\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\beals_000\Desktop\SDL2Dir\SDL2-2.0.9\lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\beals_000\Desktop\SDL2Dir\SDL2_image-2.0.4\include;C:\Users\beals_000\source\repos\Project1\Project1;C:\Users\beals_000\Desktop\SDL2Dir\SDL2-2.0.9\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\beals_000\Desktop\SDL2Dir\SDL2_image-2.0.4\lib\x86;C:\Users\beals_000\Desktop\SDL2Dir\SDL2-2.0.9\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -82,7 +82,7 @@
       <AdditionalIncludeDirectories>D:\Chrome Downloads\tinyxml2-master;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
