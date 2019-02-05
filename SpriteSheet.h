@@ -34,16 +34,16 @@ public:
 	//TODO: Unify naming, pN(XXXX) Pointer+Node but considering they're all local, makes it hard to read (pick one)
 	void InitTest();
 	bool Save();
+	bool Load();
 
 private:
 	std::string m_FilePath = "Test";
-	int m_XFactor, m_YFactor = 0; //The size in pixels each sprite is on the spritesheet (uniform through the sheet)
+	int m_XFactor = 0, m_YFactor = 0; //The size in pixels each sprite is on the spritesheet (uniform through the sheet)
 
 	Animation* m_CurrentAnimation = nullptr;
 	std::vector<Animation> m_Animations = std::vector<Animation>();
 	Animation* GetAnimation(std::string Name);
 
-	//TODO: remove maybe?
 	std::string GetXMLFilePath() { return m_FilePath + ".xml"; }
 	std::string GetPNGFilePath() { return m_FilePath + ".png"; }
 };
@@ -58,11 +58,9 @@ public:
 	Vector2 UpdateFrame(bool Start = false);
 	bool IsAnimationFinished();
 
-
 	std::string GetName() { return m_Name; }
 	void Save(tinyxml2::XMLDocument *Doc, tinyxml2::XMLNode *RootNode);
-
-	//void LoadFromXml();
+	static Animation Load(tinyxml2::XMLDocument *Doc, tinyxml2::XMLNode *RootNode);
 
 private:
 	std::string m_Name = "dAnim";

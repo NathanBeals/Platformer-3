@@ -1,6 +1,7 @@
 #include "SpriteSheet.h"
 
 SpriteSheet::SpriteSheet(std::string FilePath)
+	: m_FilePath(FilePath)
 {
 	//Load(FilePath);
 }
@@ -81,6 +82,39 @@ bool SpriteSheet::Save()
 	return eResult == 0;
 }
 
+bool SpriteSheet::Load()
+{
+	using namespace tinyxml2;
+
+	XMLDocument xmlDoc;
+	xmlDoc.LoadFile(GetXMLFilePath().c_str()); //TODO: failure check
+	
+	auto *pRoot = xmlDoc.FirstChildElement("Root");
+
+	auto *pXFactor = pRoot->FirstChildElement("XFactor");
+	auto *pYFactor = pRoot->FirstChildElement("YFactor");
+	auto *pAnimations = pRoot->FirstChildElement("Animations");
+	if (!pXFactor || !pYFactor || !pAnimations) {}
+	else
+	{
+		//SpriteSheet
+		pXFactor->QueryIntText(&m_XFactor);
+		pYFactor->QueryIntText(&m_YFactor);
+
+		//Animations
+		auto *pAnim = pAnimations->FirstChildElement("Animation");
+
+		m_Animations.clear();
+		while (pAnim != nullptr)
+		{
+			m_Animations.push_back(Animation::Load(&xmlDoc, pAnim));
+			pAnim = pAnim->NextSiblingElement("Animation");
+		}
+	}
+
+	return true;
+}
+
 
 //SpriteSheets are split into a number of rectangles of a set size, x by y
 //Animations are given the x y of their spritesheet so they can calculate their bidness
@@ -140,4 +174,35 @@ void Animation::Save(tinyxml2::XMLDocument *Doc, tinyxml2::XMLNode * RootNode)
 	auto *fc = Doc->NewElement("FrameCount");
 	fc->SetText(m_FrameCount);
 	RootNode->InsertEndChild(fc);
+}
+
+Animation Animation::Load(tinyxml2::XMLDocument * Doc, tinyxml2::XMLNode * RootNode)
+{
+	std::string name = "Failed";
+	bool bRepeats = false;
+	int sRow = 0;
+	int sCol = 0;
+	int frameCount = 0;
+
+	if (Doc != nullptr && RootNode != nullptr)
+	{
+		auto *n = RootNode->FirstChildElement("Name");
+		auto *r = RootNode->FirstChildElement("Repeats");
+		auto *sr = RootNode->FirstChildElement("StartRow");
+		auto *sc = RootNode->FirstChildElement("StartCol");
+		auto *fc = RootNode->FirstChildElement("FrameCount");
+
+		//TODO: add more and better failure checks
+		if (!n || !r || !sr || !sc || !fc){}
+		else
+		{
+			name = n->GetText();
+			r->QueryBoolText(&bRepeats);
+			sr->QueryIntText(&sRow);
+			sc->QueryIntText(&sCol);
+			fc->QueryIntText(&frameCount);
+		}
+	}
+
+	return Animation(name, bRepeats, sRow, sCol, frameCount);
 }
