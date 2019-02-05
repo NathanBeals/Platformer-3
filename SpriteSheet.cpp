@@ -47,13 +47,14 @@ void SpriteSheet::InitDummyFile()
 void SpriteSheet::Init(SDL_Surface* GlobalSurface)
 {
 	auto dingus = IMG_Init(IMG_INIT_PNG);
-	SDL_Surface* tempLoadSurface = IMG_Load(GetPNGFilePath().c_str());
-	if (tempLoadSurface == NULL) return;
+	m_OptiSurface = IMG_Load(GetPNGFilePath().c_str());
+	//SDL_Surface* tempLoadSurface = IMG_Load(GetPNGFilePath().c_str());
+	//if (tempLoadSurface == NULL) return;
 
-	SDL_FreeSurface(m_OptiSurface);
-	m_OptiSurface = SDL_ConvertSurface(tempLoadSurface, GlobalSurface->format, NULL);
+	//SDL_FreeSurface(m_OptiSurface);
+	//m_OptiSurface = SDL_ConvertSurface(tempLoadSurface, GlobalSurface->format, NULL);
 
-	SDL_FreeSurface(tempLoadSurface);
+	//SDL_FreeSurface(tempLoadSurface);
 }
 
 void SpriteSheet::TestRender(SDL_Surface * GlobalSurface, SDL_Renderer * Renderer)
