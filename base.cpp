@@ -2,7 +2,8 @@
 and may not be redistributed without written permission.*/
 
 //TODO: work on this enough so it's not just the lazyfood tutorial
-
+//Removing comments on things that will likely be removed or moved elsewhere
+//TODO: Remove all these gross globals
 
 //Using SDL and standard IO
 #include <SDL.h>
@@ -19,23 +20,12 @@ const int SCREEN_HEIGHT = 1000;
 
 //Starts up SDL and creates window
 bool init();
-
-//Loads media
 bool loadMedia();
-
-//Frees media and shuts down SDL
 void close();
 
-//The window we'll be rendering to
 SDL_Window* gWindow = NULL;
-
-//The surface contained by the window
 SDL_Surface* gScreenSurface = NULL;
-
-//The image we will load and show on the screen
 SDL_Surface* gHelloWorld = NULL;
-
-//The window renderer
 SDL_Renderer* gRenderer = NULL;
 
 void SpriteSheetTests();
@@ -73,17 +63,6 @@ bool init()
 	return success;
 }
 
-void SpriteSheetTests()
-{
-	auto sheet = SpriteSheet("C://Users//beals_000//source//repos//Project1/Project1/HelloWorld");
-	sheet.Init(gScreenSurface);
-	sheet.InitDummyFile();
-	sheet.Save();
-	sheet.Load();
-	sheet.TestRender(gScreenSurface, gRenderer);
-	SDL_UpdateWindowSurface(gWindow);
-}
-
 bool loadMedia()
 {
 	//Loading success flag
@@ -117,39 +96,36 @@ void close()
 	IMG_Quit();
 }
 
+//HACK: ??? the nested ifs were driving me nuts so I put it in a self ending while loop, I'm sure there's a better way but this solves my most immediate and irksome problem
 int main(int argc, char* args[])
 {
 	//Start up SDL and create window
-	if (!init())
+	while (true)
 	{
-		printf("Failed to initialize!\n");
-	}
-	else
-	{
-		//Load media
+		if (!init())
+		{ printf("Failed to initialize!\n"); break; }
+
 		if (!loadMedia())
-		{
-			printf("Failed to load media!\n");
-		}
-		else
-		{
-			SDL_SetRenderDrawColor(gRenderer, 0x30, 0xFF, 0xFF, 0xFF);
-			SDL_RenderClear(gRenderer);
+		{ printf("Failed to load media!\n"); break; }
 
-			//Apply the image
-			SDL_BlitSurface(gHelloWorld, NULL, gScreenSurface, NULL);
+		SDL_SetRenderDrawColor(gRenderer, 0x30, 0xFF, 0xFF, 0xFF);
+		SDL_RenderClear(gRenderer);
 
-			//Update the surface
-			SDL_UpdateWindowSurface(gWindow);
+		//Apply the image
+		SDL_BlitSurface(gHelloWorld, NULL, gScreenSurface, NULL);
 
-			//HACK: relying on gScreenSurface to not be nullptr
-			SpriteSheetTests();
+		//Update the surface
+		SDL_UpdateWindowSurface(gWindow);
 
-			SDL_RenderPresent(gRenderer);
+		//HACK: relying on gScreenSurface to not be nullptr
+		SpriteSheetTests();
 
-			//Wait two seconds
-			SDL_Delay(2000);
-		}
+		SDL_RenderPresent(gRenderer);
+
+		//Wait two seconds
+		SDL_Delay(2000);
+
+		break;
 	}
 
 
@@ -157,4 +133,15 @@ int main(int argc, char* args[])
 	close();
 
 	return 0;
+}
+
+void SpriteSheetTests()
+{
+	auto sheet = SpriteSheet("C://Users//beals_000//source//repos//Project1/Project1/HelloWorld");
+	sheet.Init(gScreenSurface);
+	sheet.InitDummyFile();
+	sheet.Save();
+	sheet.Load();
+	sheet.TestRender(gScreenSurface, gRenderer);
+	SDL_UpdateWindowSurface(gWindow);
 }
