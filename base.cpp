@@ -29,8 +29,6 @@ SDL_Surface* gScreenSurface = NULL;
 SDL_Surface* gHelloWorld = NULL;
 SDL_Renderer* gRenderer = NULL;
 
-//SpriteSheet SpriteSheetTests();
-
 bool init()
 {
 	//Initialize SDL
@@ -112,6 +110,8 @@ int main(int argc, char* args[])
 	return 0; //Moving to a void function makes this return value rather meaningless does it not?
 }
 
+void SpriteSheetTests();
+
 //TODO: name too cheeky?
 //TODO: Jesus a lot of these functions can fail returning -1, Checking them all would be the right thing to do but boy do I not want to
 void MainLoop()
@@ -126,38 +126,64 @@ void MainLoop()
 	if (EarlyExitOnTrue(SDL_BlitSurface(gHelloWorld, NULL, gScreenSurface, NULL), "Blit Test Failed")) return;
 	if (EarlyExitOnTrue(SDL_UpdateWindowSurface(gWindow), "Update Windows Surface Failed")) return;
 
-	//Tests for sprite sheet animations
-	auto sheet = SpriteSheet(gRenderer, "C://Users//beals_000//source//repos//Project1/Project1/HelloWorld");
-	//auto sheet = SpriteSheetTests(sheet); //can fail, but not like the others
-	sheet.RequestAnimation("Testa2");
-
-	SDL_RenderPresent(gRenderer); //can't fail? interesting
-
-	//This is a bonkers loop
-	int i = 0;
-	while (i < 100)
-	{
-		SDL_RenderClear(gRenderer);
-		i++;
-		SDL_Delay(40);
-		sheet.RenderSprite(50, 50);
-		sheet.Update();
-		SDL_RenderPresent(gRenderer); //can't fail? interesting
-	}
+	SpriteSheetTests();
 
 	//Wait two seconds
 	SDL_Delay(1000);
 }
 
-//void SpriteSheetTests()
-//{
-//	//auto sheet = SpriteSheet(gRenderer, "C://Users//beals_000//source//repos//Project1/Project1/HelloWorld");
-//	//sheet.InitDummyFile(); //Overwrites loaded file
-//	//sheet.Load();
-//	//sheet.Save(); //order
-//	//sheet.TestRender(gScreenSurface, gRenderer);
-//	sheet.RequestAnimation("Testa2");
-//	sheet.RenderSprite(50, 50);
-//
-//	return sheet;
-//}
+//Tests for sprite sheet animations
+void SpriteSheetTests()
+{
+	auto sheet = SpriteSheet(gRenderer, "C://Users//beals_000//source//repos//Project1/Project1/HelloWorld");
+
+	//Metroid Fusion Test Sheet
+	/* Test Animation Names from sheet
+	IdleL 3
+	IdleR 3
+	Left 11
+	Right 11
+	JumpL 5
+	JumpR 5
+	FallL 1 
+	FallR 1 
+	LandL 3
+	LandR 3
+	*/
+
+	//This is a bonkers loop
+	int i = 0;
+	while (i < 50)
+	{
+		SDL_RenderClear(gRenderer);
+
+		if (i == 0)
+			sheet.RequestAnimation("IdleL");
+		if (i == 3)
+			sheet.RequestAnimation("IdleR");
+		if (i == 6)
+			sheet.RequestAnimation("Left");
+		if (i == 17)
+			sheet.RequestAnimation("Right");
+		if (i == 28)
+			sheet.RequestAnimation("JumpL");
+		if (i == 33)
+			sheet.RequestAnimation("JumpR");
+		if (i == 38)
+			sheet.RequestAnimation("FallL");
+		if (i == 39)
+			sheet.RequestAnimation("FallR");
+		if (i == 40)
+			sheet.RequestAnimation("LandL");
+		if (i == 43)
+			sheet.RequestAnimation("LandR");
+
+		//Sprite Render and Update (Update will increment the frame)
+		sheet.RenderSprite(50, 50);
+		sheet.Update();
+
+		SDL_RenderPresent(gRenderer); //can't fail? interesting
+		SDL_Delay(200);
+		++i;
+	}
+}
