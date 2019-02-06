@@ -29,7 +29,7 @@ SDL_Surface* gScreenSurface = NULL;
 SDL_Surface* gHelloWorld = NULL;
 SDL_Renderer* gRenderer = NULL;
 
-void SpriteSheetTests();
+//SpriteSheet SpriteSheetTests();
 
 bool init()
 {
@@ -94,57 +94,70 @@ namespace
 {
 	//HACK: Well, huh... I have a gut feeling this method is a complete wash but huh, re-evaluate later
 	//My quest to remove the nesting of the tutorial continues
-	bool EarlyExitOnTrue(bool Condition, std::string FailureString)
+	bool EarlyExitOnTrue(bool Condition, std::string FailureString = "")
 	{
-		auto c = Condition;
-		if (c)
-		{
-			printf(FailureString.c_str());
-			close();
-		}
-		return c;
+		if (!Condition) return Condition;
+		printf(FailureString.c_str());
+		close();
+		return Condition;
 	}
 }
 
-//HACK: ??? the nested ifs were driving me nuts so I put it in a self ending while loop, I'm sure there's a better way but this solves my most immediate and irksome problem
+void MainLoop();
+
 int main(int argc, char* args[])
 {
-	//Start up SDL and create window
-
-	if (EarlyExitOnTrue(!init(), "Failure to Init")) return 0;
-	if (EarlyExitOnTrue(!loadMedia(), "Failure to Load Media")) return 0;
-
-	SDL_SetRenderDrawColor(gRenderer, 0x30, 0xFF, 0xFF, 0xFF);
-	SDL_RenderClear(gRenderer);
-
-	SDL_BlitSurface(gHelloWorld, NULL, gScreenSurface, NULL);
-
-	SDL_UpdateWindowSurface(gWindow);
-
-	//HACK: relying on gScreenSurface to not be nullptr
-	SpriteSheetTests();
-
-	SDL_RenderPresent(gRenderer);
-
-	//Wait two seconds
-	SDL_Delay(2000);
-
-	close();
-	return 0;
+	MainLoop();
+	close(); //If this doesn't get called it means I'm a bad person
+	return 0; //Moving to a void function makes this return value rather meaningless does it not?
 }
 
+//TODO: name too cheeky?
+//TODO: Jesus a lot of these functions can fail returning -1, Checking them all would be the right thing to do but boy do I not want to
 void MainLoop()
 {
+	if (EarlyExitOnTrue(!init(), "Failure to Init")) return;
+	if (EarlyExitOnTrue(!loadMedia(), "Failure to Load Media")) return;
 
+	//is 0 true or false? I can never remember
+	//false == 0
+	if (EarlyExitOnTrue(SDL_SetRenderDrawColor(gRenderer, 0x30, 0xFF, 0xFF, 0xFF), "Failure to Change Render Color")) return;
+	if (EarlyExitOnTrue(SDL_RenderClear(gRenderer), "Failure to Clear Renderer")) return;
+	if (EarlyExitOnTrue(SDL_BlitSurface(gHelloWorld, NULL, gScreenSurface, NULL), "Blit Test Failed")) return;
+	if (EarlyExitOnTrue(SDL_UpdateWindowSurface(gWindow), "Update Windows Surface Failed")) return;
+
+	//Tests for sprite sheet animations
+	auto sheet = SpriteSheet(gRenderer, "C://Users//beals_000//source//repos//Project1/Project1/HelloWorld");
+	//auto sheet = SpriteSheetTests(sheet); //can fail, but not like the others
+	sheet.RequestAnimation("Testa2");
+
+	SDL_RenderPresent(gRenderer); //can't fail? interesting
+
+	//This is a bonkers loop
+	int i = 0;
+	while (i < 100)
+	{
+		SDL_RenderClear(gRenderer);
+		i++;
+		SDL_Delay(40);
+		sheet.RenderSprite(50, 50);
+		sheet.Update();
+		SDL_RenderPresent(gRenderer); //can't fail? interesting
+	}
+
+	//Wait two seconds
+	SDL_Delay(1000);
 }
 
-void SpriteSheetTests()
-{
-	auto sheet = SpriteSheet("C://Users//beals_000//source//repos//Project1/Project1/HelloWorld");
-	sheet.Init(gScreenSurface);
-	sheet.InitDummyFile();
-	sheet.Save();
-	sheet.Load();
-	sheet.TestRender(gScreenSurface, gRenderer);
-	SDL_UpdateWindowSurface(gWindow);
-}
+//void SpriteSheetTests()
+//{
+//	//auto sheet = SpriteSheet(gRenderer, "C://Users//beals_000//source//repos//Project1/Project1/HelloWorld");
+//	//sheet.InitDummyFile(); //Overwrites loaded file
+//	//sheet.Load();
+//	//sheet.Save(); //order
+//	//sheet.TestRender(gScreenSurface, gRenderer);
+//	sheet.RequestAnimation("Testa2");
+//	sheet.RenderSprite(50, 50);
+//
+//	return sheet;
+//}

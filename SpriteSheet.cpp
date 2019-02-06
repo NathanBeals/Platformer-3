@@ -1,22 +1,26 @@
 #include "SpriteSheet.h"
+#include <algorithm>
 
-SpriteSheet::SpriteSheet(std::string FilePath)
-	: m_FilePath(FilePath)
+SpriteSheet::SpriteSheet(SDL_Renderer* Renderer, std::string FilePath)
+	: m_Renderer(Renderer)
+	, m_FilePath(FilePath)
 {
-	//Load(FilePath);
+	Init();
 }
 
 SpriteSheet::~SpriteSheet()
 {
+	m_Renderer = nullptr; 
 	SDL_FreeSurface(m_OptiSurface);
+	SDL_DestroyTexture(m_SpriteTexture);
 }
 
 bool SpriteSheet::RequestAnimation(std::string Name)
 {
-	auto anim = GetAnimation(Name);
-	if (anim == nullptr) return false;
+	auto anim = std::find_if(std::begin(m_Animations), std::end(m_Animations), [&](auto a){ return a.GetName().compare(Name) == 0; });
+	if (anim == std::end(m_Animations)) return false;
 
-	m_CurrentAnimation = anim;
+	m_CurrentAnimation = &*anim;
 	m_CurrentAnimation->UpdateFrame(true);
 
 	return true;
@@ -24,45 +28,66 @@ bool SpriteSheet::RequestAnimation(std::string Name)
 
 void SpriteSheet::Update()
 {
-	if (m_CurrentAnimation == nullptr) return;
+	if (!m_CurrentAnimation) return;
 	m_CurrentAnimation->UpdateFrame();
 }
 
-Animation * SpriteSheet::GetAnimation(std::string Name)
+void SpriteSheet::RenderSprite(int X, int Y)
 {
-	for (auto x : m_Animations)
-		if (Name == x.GetName())
-			return &x;
+	if (!m_Renderer || !m_CurrentAnimation) return;
 
-	return nullptr;
+	auto spriteRect = m_CurrentAnimation->GetSprite(m_XFactor, m_YFactor);
+
+	//Center it
+	auto desRect = SDL_Rect();
+	desRect.x = X - m_XFactor / 2;
+	desRect.y = Y - m_YFactor / 2;
+	desRect.h = m_XFactor;
+	desRect.w = m_YFactor;
+
+	SDL_RenderCopy(m_Renderer, m_SpriteTexture, &spriteRect, &desRect);
 }
 
 void SpriteSheet::InitDummyFile()
 {
+	m_XFactor = 32;
+	m_YFactor = 32;
+	m_Animations.clear();
 	m_Animations.push_back(Animation("Testa1", false, 0, 0, 5));
 	m_Animations.push_back(Animation("Testa2", true, 1, 0, 5));
 	m_Animations.push_back(Animation("Testa3", false, 1, 5, 10));
 }
 
-void SpriteSheet::Init(SDL_Surface* GlobalSurface)
+//TODO: look at simplifying this area, possibly
+void SpriteSheet::Init()
 {
-	auto dingus = IMG_Init(IMG_INIT_PNG);
+	//XML File load / Saving
+	if (Load())
+		printf(("SpriteSheet loaded from file, " + m_FilePath).c_str());
+	else if (Save())
+		printf(("Creating file for new SpriteSheet, " + m_FilePath).c_str());
+	else
+		printf(("SpriteSheet failed to load or save, " + m_FilePath).c_str());
+
+	//Iamge File loading
+	auto loadedFlag = IMG_Init(IMG_INIT_PNG);
 	m_OptiSurface = IMG_Load(GetPNGFilePath().c_str());
-	//SDL_Surface* tempLoadSurface = IMG_Load(GetPNGFilePath().c_str());
-	//if (tempLoadSurface == NULL) return;
 
-	//SDL_FreeSurface(m_OptiSurface);
-	//m_OptiSurface = SDL_ConvertSurface(tempLoadSurface, GlobalSurface->format, NULL);
+	if (loadedFlag == 0 || !m_OptiSurface)
+		printf(("Image failed to load, " + m_FilePath).c_str());
 
-	//SDL_FreeSurface(tempLoadSurface);
+	//TODO: move to init
+	if (m_SpriteTexture)
+		SDL_DestroyTexture(m_SpriteTexture);
+	m_SpriteTexture = SDL_CreateTextureFromSurface(m_Renderer, m_OptiSurface);
+	SDL_SetTextureBlendMode(m_SpriteTexture, SDL_BLENDMODE_BLEND); //can fail
 }
 
 void SpriteSheet::TestRender(SDL_Surface * GlobalSurface, SDL_Renderer * Renderer)
 {
-	SDL_Texture* newtex = SDL_CreateTextureFromSurface(Renderer, m_OptiSurface);
-	SDL_SetTextureBlendMode(newtex, SDL_BLENDMODE_BLEND);
-	//SDL_BlitSurface(m_OptiSurface, NULL, GlobalSurface, NULL);
-	
+	SDL_Texture* newtex = SDL_CreateTextureFromSurface(Renderer, m_OptiSurface); //can fail
+	SDL_SetTextureBlendMode(newtex, SDL_BLENDMODE_BLEND); //can fail
+
 	auto myrect = SDL_Rect();
 	myrect.x = 0;
 	myrect.y = 0;
@@ -77,15 +102,16 @@ void SpriteSheet::TestRender(SDL_Surface * GlobalSurface, SDL_Renderer * Rendere
 
 bool SpriteSheet::Save()
 {
-	/*
+	/* XML File Format
 	XFactor
 	YFactor
 	Animations
-	Name
-	Repeats //TODO: maybe don't store this?
-	StartRow
-	StartCol
-	Frames
+		Animation
+			Name
+			Repeats
+			StartRow
+			StartCol
+			Frames
 	*/
 
 	using namespace tinyxml2;
@@ -121,8 +147,9 @@ bool SpriteSheet::Load()
 	using namespace tinyxml2;
 
 	XMLDocument xmlDoc;
-	xmlDoc.LoadFile(GetXMLFilePath().c_str()); //TODO: failure check
-	
+	auto EResult = xmlDoc.LoadFile(GetXMLFilePath().c_str());
+	if (EResult != XMLError::XML_SUCCESS) return false;
+
 	auto *pRoot = xmlDoc.FirstChildElement("Root");
 
 	auto *pXFactor = pRoot->FirstChildElement("XFactor");
@@ -163,26 +190,34 @@ Animation::Animation(std::string Name, bool Repeats, int StartRow, int StartCol,
 
 }
 
-//TODO: Simplify block
-Vector2 Animation::UpdateFrame(bool Start)
+void Animation::UpdateFrame(bool Start)
 {
-	if (m_CurrentFrame == m_FrameCount - 1)
+	m_CurrentFrame++;
+	if (m_CurrentFrame >= m_FrameCount)
 	{
-		if (m_Repeats)
-			m_CurrentFrame = 0;
+		if (m_Repeats) m_CurrentFrame = 0;
+		else m_CurrentFrame = m_FrameCount - 1;
 	}
-	else
-		m_CurrentFrame++;
 
 	if (Start)
 		m_CurrentFrame = 0;
-
-	return Vector2(m_StartRow, m_StartCol + m_CurrentFrame);
 }
 
 bool Animation::IsAnimationFinished()
 {
 	return !m_Repeats && m_CurrentFrame == m_FrameCount - 1;
+}
+
+//HACK: ok now i'm starting to see that x and y may be confusing
+SDL_Rect Animation::GetSprite(int XFactor, int YFactor)
+{
+	auto newRect = SDL_Rect();
+	newRect.w = XFactor;
+	newRect.h = YFactor;
+	newRect.x = XFactor * (m_StartCol + m_CurrentFrame);
+	newRect.y = YFactor * (m_StartRow);
+
+	return newRect;
 }
 
 void Animation::Save(tinyxml2::XMLDocument *Doc, tinyxml2::XMLNode * RootNode)
@@ -227,7 +262,7 @@ Animation Animation::Load(tinyxml2::XMLDocument * Doc, tinyxml2::XMLNode * RootN
 		auto *fc = RootNode->FirstChildElement("FrameCount");
 
 		//TODO: add more and better failure checks
-		if (!n || !r || !sr || !sc || !fc){}
+		if (!n || !r || !sr || !sc || !fc) {}
 		else
 		{
 			name = n->GetText();

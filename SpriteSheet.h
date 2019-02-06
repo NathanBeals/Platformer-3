@@ -12,13 +12,7 @@ class Animation;
 class Sprite;
 class SpriteSheet;
 
-struct Vector2
-{
-	int m_X, m_Y = 0;
-	Vector2(int X, int Y) :
-		m_X(X),
-		m_Y(Y) {}
-};
+//TODO: Ordering
 
 //XML MetaData File + PNG Spritesheet
 //Spritesheet contains individual frames of animation ordered in rows of a set x by y size
@@ -28,31 +22,36 @@ struct Vector2
 class SpriteSheet
 {
 public:
-	SpriteSheet(std::string FilePath);
+	SpriteSheet(SDL_Renderer* Renderer, std::string FilePath);
 	~SpriteSheet();
 	bool RequestAnimation(std::string Name);
 	void Update();
 
-	//Add failure guards
-	void Init(SDL_Surface* GlobalSurface);
-	void TestRender(SDL_Surface * GlobalSurface, SDL_Renderer * Renderer);
+	void RenderSprite(int X = 0, int Y = 0);
+
+	//XML save/load
 	bool Save();
 	bool Load();
 
+	//TestingFunctions
 	void InitDummyFile();
+	void TestRender(SDL_Surface * GlobalSurface, SDL_Renderer * Renderer);
 
 private:
+	SDL_Renderer* m_Renderer = nullptr;
 	std::string m_FilePath = "Test";
 	int m_XFactor = 0, m_YFactor = 0; //The size in pixels each sprite is on the spritesheet (uniform through the sheet)
 	SDL_Surface* m_OptiSurface = nullptr;
-
+	SDL_Texture* m_SpriteTexture = nullptr;
 
 	Animation* m_CurrentAnimation = nullptr;
 	std::vector<Animation> m_Animations = std::vector<Animation>();
-	Animation* GetAnimation(std::string Name);
 
 	std::string GetXMLFilePath() { return m_FilePath + ".xml"; }
 	std::string GetPNGFilePath() { return m_FilePath + ".png"; }
+
+	//Add failure guards
+	void Init();
 };
 
 //SpriteSheets are composed of a number of sprite rects of a fixes size, x by y,
@@ -62,8 +61,9 @@ class Animation
 {
 public:
 	Animation(std::string Name, bool Repeats, int StartRow, int StartCol, int FrameCount);
-	Vector2 UpdateFrame(bool Start = false);
+	void UpdateFrame(bool Start = false);
 	bool IsAnimationFinished();
+	SDL_Rect GetSprite(int XFactor, int YFactor);
 
 	std::string GetName() { return m_Name; }
 	void Save(tinyxml2::XMLDocument *Doc, tinyxml2::XMLNode *RootNode);

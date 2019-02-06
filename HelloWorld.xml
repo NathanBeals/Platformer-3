@@ -1,6 +1,6 @@
 <Root>
-    <XFactor>0</XFactor>
-    <YFactor>0</YFactor>
+    <XFactor>56</XFactor>
+    <YFactor>56</YFactor>
     <Animations>
         <Animation>
             <Name>Testa1</Name>
@@ -12,9 +12,9 @@
         <Animation>
             <Name>Testa2</Name>
             <Repeats>true</Repeats>
-            <StartRow>1</StartRow>
+            <StartRow>2</StartRow>
             <StartCol>0</StartCol>
-            <FrameCount>5</FrameCount>
+            <FrameCount>11</FrameCount>
         </Animation>
         <Animation>
             <Name>Testa3</Name>
