@@ -18,6 +18,7 @@ and may not be redistributed without written permission.*/
 
 #include <algorithm>
 #include "EventHandlers.h"
+#include "Character.h"
 
 //Screen dimension constants
 const int SCREEN_WIDTH = 1000;
@@ -137,6 +138,11 @@ void MainLoop()
 	DeltaTimer::GetInstance();
 	auto ExitHandler = EHandlers::ProgramExitHandler(&bQuit); //Handles Escape + top right X application exiting by modifying the bQuit bool
 
+
+
+	auto PlayerCharacter = Character(gRenderer, "C://Users//beals_000//source//repos//Project1/Project1/HelloWorld");
+	auto test = TestUpdater();
+
 	//TODO: more consideration should be used for this updating logic, it's important after all
 	int i = 0;
 	auto Events = std::vector<SDL_Event>();
@@ -154,14 +160,16 @@ void MainLoop()
 		Updater::GetInstance().Update();
 		Updater::GetInstance().Render();
 
-		SDL_Delay( 20); //TODO: consider consistent framerates?
+		SDL_RenderPresent(gRenderer); //can't fail? interesting
+
+		SDL_Delay( 40); //TODO: consider consistent framerates?
 
 		i++;
-		if (i > 100) break;
+		//if (i > 100) break;
 	}
 
-	if (!bQuit)
-		SpriteSheetTests();
+	//if (!bQuit)
+	//	SpriteSheetTests();
 }
 
 //Tests for sprite sheet animations

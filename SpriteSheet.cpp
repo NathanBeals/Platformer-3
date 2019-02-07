@@ -20,6 +20,9 @@ bool SpriteSheet::RequestAnimation(std::string Name)
 	auto anim = std::find_if(std::begin(m_Animations), std::end(m_Animations), [&](auto a){ return a.GetName().compare(Name) == 0; });
 	if (anim == std::end(m_Animations)) return false;
 
+	if (m_CurrentAnimation && m_CurrentAnimation->GetName() == Name)
+		return true;
+
 	m_CurrentAnimation = &*anim;
 	m_CurrentAnimation->UpdateFrame(true);
 

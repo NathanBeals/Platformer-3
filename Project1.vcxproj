@@ -124,6 +124,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="base.cpp" />
+    <ClCompile Include="Character.cpp" />
     <ClCompile Include="EventHandlers.cpp" />
     <ClCompile Include="SpriteSheet.cpp" />
     <ClCompile Include="Update.cpp" />
@@ -134,6 +135,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Character.h" />
     <ClInclude Include="EventHandlers.h" />
     <ClInclude Include="SpriteSheet.h" />
     <ClInclude Include="Update.h" />

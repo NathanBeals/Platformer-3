@@ -2,7 +2,7 @@
 #include <vector>
 #include <SDL.h>
 //TODO: consider constness
-
+//TODO: Update file name to Updater/UpdateGenerator/UpdateHandler/etc
 class IUpdatable;
 
 //Handles passing updates down the chain to any class implementing IUpdatable
@@ -78,6 +78,9 @@ public:
 
 	void Update() override
 	{
+		auto dtim = DeltaTimer::GetDeltaTime();
+		if (dtim > 300.0 && dtim < 600)
+			printf("it happened\n");
 		printf("Delta Time: %f\n", DeltaTimer::GetDeltaTime());
 		printf("Update\n");
 	}
