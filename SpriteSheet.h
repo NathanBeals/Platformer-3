@@ -12,6 +12,7 @@ class SpriteSheet;
 
 //TODO: Ordering
 
+//Contained in a character?
 //XML MetaData File + PNG Spritesheet
 //Spritesheet contains individual frames of animation ordered in rows of a set x by y size
 //The spritesheets are set that animations start at a row/col and continue to the right until done
@@ -31,9 +32,9 @@ public:
 	bool Save();
 	bool Load();
 
-	//TestingFunctions
+	//TestingFunctions //TODO: remove
 	void InitDummyFile();
-	void TestRender(SDL_Surface * GlobalSurface, SDL_Renderer * Renderer);
+	void TestRender(SDL_Surface * GlobalSurface, SDL_Renderer * Renderer); 
 
 private:
 	SDL_Renderer* m_Renderer = nullptr;

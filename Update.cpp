@@ -8,6 +8,13 @@ Updater & Updater::GetInstance()
 	return instance;
 }
 
+void Updater::HandleEvents(std::vector<SDL_Event>* Events)
+{
+	for (auto x : m_Children)
+		if (auto ptr = dynamic_cast<IEventHandler*>(&*x))
+			ptr->HandleEvents(Events);
+}
+
 void Updater::Update()
 {
 	for (auto x : m_Children)

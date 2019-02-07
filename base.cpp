@@ -16,6 +16,9 @@ and may not be redistributed without written permission.*/
 #include "Update.h"
 #include "SpriteSheet.h"
 
+#include <algorithm>
+#include "EventHandlers.h"
+
 //Screen dimension constants
 const int SCREEN_WIDTH = 1000;
 const int SCREEN_HEIGHT = 1000;
@@ -29,6 +32,9 @@ SDL_Window* gWindow = NULL;
 SDL_Surface* gScreenSurface = NULL;
 SDL_Surface* gHelloWorld = NULL;
 SDL_Renderer* gRenderer = NULL;
+
+//
+bool bQuit = false;
 
 bool init()
 {
@@ -127,24 +133,35 @@ void MainLoop()
 	if (EarlyExitOnTrue(SDL_BlitSurface(gHelloWorld, NULL, gScreenSurface, NULL), "Blit Test Failed")) return;
 	if (EarlyExitOnTrue(SDL_UpdateWindowSurface(gWindow), "Update Windows Surface Failed")) return;
 
-	//Testcode for singleton update structure (this will likey lead to a disaster but eh, it's fun)
-	DeltaTimer::GetInstance(); //Constructs the instance so that it will add itself to the Updater, constructing it before anything else guarantees anyone that askes for a deltatime in update will have an accurate number 
-	TestUpdater MyUpdater = TestUpdater(); //Another Updatee, TODO: change IUpdatable to Updatee, maybe, I duno
+	//Init the Delta Timer (attaches self to Updater and starts calculating time since last call)
+	DeltaTimer::GetInstance();
+	auto ExitHandler = EHandlers::ProgramExitHandler(&bQuit); //Handles Escape + top right X application exiting by modifying the bQuit bool
+
+	//TODO: more consideration should be used for this updating logic, it's important after all
 	int i = 0;
-	while (true) //TODO: to be main loop? It drives the singleton updater so it must be right?
+	auto Events = std::vector<SDL_Event>();
+	while (true)
 	{
-		Updater::GetInstance().Update(); //More important than render
-		Updater::GetInstance().Render(); //Consider solution to delaying frame update if update takes too long
+		if (bQuit) break;
+
+		//TODO: re-evaluate this chunk, it's hard to read, as is most of main (base)
+		Events.clear();
+		SDL_Event e;
+		while (SDL_PollEvent(&e) != 0)
+			Events.push_back(SDL_Event(e));
+		Updater::GetInstance().HandleEvents(&Events);
+
+		Updater::GetInstance().Update();
+		Updater::GetInstance().Render();
+
+		SDL_Delay( 20); //TODO: consider consistent framerates?
 
 		i++;
-		SDL_Delay(20); //TODO: Do time math to say, after the time it takes to do the loop operations, wait an additional amount of time to maintain a target framerate, if more time passed than in a single frame use the remainder of the two frames, etc... 
-		if (i > 10) break;
+		if (i > 100) break;
 	}
 
-	SpriteSheetTests();
-
-	//Wait two seconds
-	SDL_Delay(1000);
+	if (!bQuit)
+		SpriteSheetTests();
 }
 
 //Tests for sprite sheet animations

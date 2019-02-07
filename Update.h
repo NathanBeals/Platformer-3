@@ -1,5 +1,7 @@
 #pragma once
 #include <vector>
+#include <SDL.h>
+//TODO: consider constness
 
 class IUpdatable;
 
@@ -12,6 +14,7 @@ public:
 	void operator=(Updater const &) = delete;
 	static Updater& GetInstance();
 
+	void HandleEvents(std::vector<SDL_Event> * Events);
 	void Update();
 	void Render();
 
@@ -78,4 +81,21 @@ public:
 		printf("Delta Time: %f\n", DeltaTimer::GetDeltaTime());
 		printf("Update\n");
 	}
+};
+
+class IEventHandler : public IUpdatable
+{
+public:
+	IEventHandler()
+		: IUpdatable()
+	{
+
+	}
+
+	virtual void HandleEvents(std::vector<SDL_Event> * Events) 
+	{
+		for (auto x : *Events)
+			HandleEvent(&x);
+	};
+	virtual void HandleEvent(SDL_Event * Event) {};
 };
