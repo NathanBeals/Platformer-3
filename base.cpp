@@ -13,6 +13,7 @@ and may not be redistributed without written permission.*/
 #include "tinyxml2.h"
 #include <memory>
 
+#include "Update.h"
 #include "SpriteSheet.h"
 
 //Screen dimension constants
@@ -55,7 +56,6 @@ bool init()
 
 	return true;
 }
-
 
 //TODO: Remove/rework, non-applicaple to final product
 bool loadMedia()
@@ -116,6 +116,7 @@ void SpriteSheetTests();
 //TODO: Jesus a lot of these functions can fail returning -1, Checking them all would be the right thing to do but boy do I not want to
 void MainLoop()
 {
+	//HACK: what are these doing in a method called, MAIN LOOP??
 	if (EarlyExitOnTrue(!init(), "Failure to Init")) return;
 	if (EarlyExitOnTrue(!loadMedia(), "Failure to Load Media")) return;
 
@@ -125,6 +126,20 @@ void MainLoop()
 	if (EarlyExitOnTrue(SDL_RenderClear(gRenderer), "Failure to Clear Renderer")) return;
 	if (EarlyExitOnTrue(SDL_BlitSurface(gHelloWorld, NULL, gScreenSurface, NULL), "Blit Test Failed")) return;
 	if (EarlyExitOnTrue(SDL_UpdateWindowSurface(gWindow), "Update Windows Surface Failed")) return;
+
+	//Testcode for singleton update structure (this will likey lead to a disaster but eh, it's fun)
+	DeltaTimer::GetInstance(); //Constructs the instance so that it will add itself to the Updater, constructing it before anything else guarantees anyone that askes for a deltatime in update will have an accurate number 
+	TestUpdater MyUpdater = TestUpdater(); //Another Updatee, TODO: change IUpdatable to Updatee, maybe, I duno
+	int i = 0;
+	while (true) //TODO: to be main loop? It drives the singleton updater so it must be right?
+	{
+		Updater::GetInstance().Update(); //More important than render
+		Updater::GetInstance().Render(); //Consider solution to delaying frame update if update takes too long
+
+		i++;
+		SDL_Delay(20); //TODO: Do time math to say, after the time it takes to do the loop operations, wait an additional amount of time to maintain a target framerate, if more time passed than in a single frame use the remainder of the two frames, etc... 
+		if (i > 10) break;
+	}
 
 	SpriteSheetTests();
 

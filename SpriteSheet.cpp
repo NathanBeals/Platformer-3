@@ -48,58 +48,6 @@ void SpriteSheet::RenderSprite(int X, int Y)
 	SDL_RenderCopy(m_Renderer, m_SpriteTexture, &spriteRect, &desRect);
 }
 
-void SpriteSheet::InitDummyFile()
-{
-	m_XFactor = 32;
-	m_YFactor = 32;
-	m_Animations.clear();
-	m_Animations.push_back(Animation("Testa1", false, 0, 0, 5));
-	m_Animations.push_back(Animation("Testa2", true, 1, 0, 5));
-	m_Animations.push_back(Animation("Testa3", false, 1, 5, 10));
-}
-
-//TODO: look at simplifying this area, possibly
-void SpriteSheet::Init()
-{
-	//XML File load / Saving
-	if (Load())
-		printf(("SpriteSheet loaded from file, " + m_FilePath).c_str());
-	else if (Save())
-		printf(("Creating file for new SpriteSheet, " + m_FilePath).c_str());
-	else
-		printf(("SpriteSheet failed to load or save, " + m_FilePath).c_str());
-
-	//Iamge File loading
-	auto loadedFlag = IMG_Init(IMG_INIT_PNG);
-	m_OptiSurface = IMG_Load(GetPNGFilePath().c_str());
-
-	if (loadedFlag == 0 || !m_OptiSurface)
-		printf(("Image failed to load, " + m_FilePath).c_str());
-
-	//TODO: move to init
-	if (m_SpriteTexture)
-		SDL_DestroyTexture(m_SpriteTexture);
-	m_SpriteTexture = SDL_CreateTextureFromSurface(m_Renderer, m_OptiSurface);
-	SDL_SetTextureBlendMode(m_SpriteTexture, SDL_BLENDMODE_BLEND); //can fail
-}
-
-void SpriteSheet::TestRender(SDL_Surface * GlobalSurface, SDL_Renderer * Renderer)
-{
-	SDL_Texture* newtex = SDL_CreateTextureFromSurface(Renderer, m_OptiSurface); //can fail
-	SDL_SetTextureBlendMode(newtex, SDL_BLENDMODE_BLEND); //can fail
-
-	auto myrect = SDL_Rect();
-	myrect.x = 0;
-	myrect.y = 0;
-	myrect.h = 500;
-	myrect.w = 500;
-
-	SDL_RenderCopy(Renderer, newtex, &myrect, &myrect);
-
-	if (newtex != NULL)
-		SDL_DestroyTexture(newtex);
-}
-
 bool SpriteSheet::Save()
 {
 	/* XML File Format
@@ -176,6 +124,57 @@ bool SpriteSheet::Load()
 	return true;
 }
 
+void SpriteSheet::InitDummyFile()
+{
+	m_XFactor = 32;
+	m_YFactor = 32;
+	m_Animations.clear();
+	m_Animations.push_back(Animation("Testa1", false, 0, 0, 5));
+	m_Animations.push_back(Animation("Testa2", true, 1, 0, 5));
+	m_Animations.push_back(Animation("Testa3", false, 1, 5, 10));
+}
+
+void SpriteSheet::TestRender(SDL_Surface * GlobalSurface, SDL_Renderer * Renderer)
+{
+	SDL_Texture* newtex = SDL_CreateTextureFromSurface(Renderer, m_OptiSurface); //can fail
+	SDL_SetTextureBlendMode(newtex, SDL_BLENDMODE_BLEND); //can fail
+
+	auto myrect = SDL_Rect();
+	myrect.x = 0;
+	myrect.y = 0;
+	myrect.h = 500;
+	myrect.w = 500;
+
+	SDL_RenderCopy(Renderer, newtex, &myrect, &myrect);
+
+	if (newtex != NULL)
+		SDL_DestroyTexture(newtex);
+}
+
+//TODO: look at simplifying this area, possibly
+void SpriteSheet::Init()
+{
+	//XML File load / Saving
+	if (Load())
+		printf(("SpriteSheet loaded from file, " + m_FilePath).c_str());
+	else if (Save())
+		printf(("Creating file for new SpriteSheet, " + m_FilePath).c_str());
+	else
+		printf(("SpriteSheet failed to load or save, " + m_FilePath).c_str());
+
+	//Iamge File loading
+	auto loadedFlag = IMG_Init(IMG_INIT_PNG);
+	m_OptiSurface = IMG_Load(GetPNGFilePath().c_str());
+
+	if (loadedFlag == 0 || !m_OptiSurface)
+		printf(("Image failed to load, " + m_FilePath).c_str());
+
+	//TODO: move to init
+	if (m_SpriteTexture)
+		SDL_DestroyTexture(m_SpriteTexture);
+	m_SpriteTexture = SDL_CreateTextureFromSurface(m_Renderer, m_OptiSurface);
+	SDL_SetTextureBlendMode(m_SpriteTexture, SDL_BLENDMODE_BLEND); //can fail
+}
 
 //SpriteSheets are split into a number of rectangles of a set size, x by y
 //Animations are given the x y of their spritesheet so they can calculate their bidness

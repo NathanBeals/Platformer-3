@@ -6,8 +6,6 @@
 #include <vector>
 #include "tinyxml2.h"
 
-//TODO: Add guards for nullptrs
-
 class Animation;
 class Sprite;
 class SpriteSheet;
@@ -57,6 +55,7 @@ private:
 //SpriteSheets are composed of a number of sprite rects of a fixes size, x by y,
 //Animations only know the starting row/col and the number of frames they get before repeating or stopping at the last frame.
 //Should be savable to xml
+//TODO: this ordering is strange
 class Animation
 {
 public:
@@ -70,7 +69,7 @@ public:
 	static Animation Load(tinyxml2::XMLDocument *Doc, tinyxml2::XMLNode *RootNode);
 
 private:
-	std::string m_Name = "dAnim";
+	std::string m_Name = "DefaultAnimationName";
 	bool m_Repeats = false;
 	int m_StartRow, m_StartCol = 0;
 	int m_FrameCount = 0;

@@ -125,6 +125,7 @@
   <ItemGroup>
     <ClCompile Include="base.cpp" />
     <ClCompile Include="SpriteSheet.cpp" />
+    <ClCompile Include="Update.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="D:\Chrome Downloads\tinyxml2-master\tinyxml2\tinyxml2.vcxproj">
@@ -133,6 +134,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SpriteSheet.h" />
+    <ClInclude Include="Update.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
