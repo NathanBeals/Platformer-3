@@ -81,8 +81,8 @@ public:
 		auto dtim = DeltaTimer::GetDeltaTime();
 		if (dtim > 300.0 && dtim < 600)
 			printf("it happened\n");
-		printf("Delta Time: %f\n", DeltaTimer::GetDeltaTime());
-		printf("Update\n");
+		//printf("Delta Time: %f\n", DeltaTimer::GetDeltaTime());
+		//printf("Update\n");
 	}
 };
 

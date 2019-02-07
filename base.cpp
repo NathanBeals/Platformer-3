@@ -138,8 +138,6 @@ void MainLoop()
 	DeltaTimer::GetInstance();
 	auto ExitHandler = EHandlers::ProgramExitHandler(&bQuit); //Handles Escape + top right X application exiting by modifying the bQuit bool
 
-
-
 	auto PlayerCharacter = Character(gRenderer, "C://Users//beals_000//source//repos//Project1/Project1/HelloWorld");
 	auto test = TestUpdater();
 
@@ -153,8 +151,20 @@ void MainLoop()
 		//TODO: re-evaluate this chunk, it's hard to read, as is most of main (base)
 		Events.clear();
 		SDL_Event e;
+
+		DeltaTimer::GetInstance().Update();
 		while (SDL_PollEvent(&e) != 0)
 			Events.push_back(SDL_Event(e));
+		DeltaTimer::GetInstance().Update();
+		auto what = DeltaTimer::GetInstance().GetDeltaTime();
+
+		printf("DeltaTime: %f\n", what);
+
+		if (what > 200)
+		{
+			printf("here");
+		}
+
 		Updater::GetInstance().HandleEvents(&Events);
 
 		Updater::GetInstance().Update();
@@ -162,10 +172,9 @@ void MainLoop()
 
 		SDL_RenderPresent(gRenderer); //can't fail? interesting
 
-		SDL_Delay( 40); //TODO: consider consistent framerates?
+		SDL_Delay(40); //TODO: consider consistent framerates?
 
 		i++;
-		//if (i > 100) break;
 	}
 
 	//if (!bQuit)
