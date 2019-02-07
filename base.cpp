@@ -152,21 +152,10 @@ void MainLoop()
 		Events.clear();
 		SDL_Event e;
 
-		DeltaTimer::GetInstance().Update();
 		while (SDL_PollEvent(&e) != 0)
 			Events.push_back(SDL_Event(e));
-		DeltaTimer::GetInstance().Update();
-		auto what = DeltaTimer::GetInstance().GetDeltaTime();
-
-		printf("DeltaTime: %f\n", what);
-
-		if (what > 200)
-		{
-			printf("here");
-		}
 
 		Updater::GetInstance().HandleEvents(&Events);
-
 		Updater::GetInstance().Update();
 		Updater::GetInstance().Render();
 
