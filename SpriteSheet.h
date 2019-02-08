@@ -39,13 +39,12 @@ public:
 private:
 	SDL_Renderer* m_Renderer = nullptr;
 	std::string m_FilePath = "Test";
-
-	//Alternate framerate than render 
+ 
 	//Expl. I want the game to run at 60fps, but I know this sheet normally plays at 24fps, so I need to accomodate a 24fps sprite in a 60fps application
-	//HACK: this may just be crazyness
-	double m_TimePassed = 0;
-	double m_FrameRate = 5;
-	double m_MSDelay = 0;
+	//The theory is by getting delta times in render I can keep an alternate track of time, so while the main loop is calling render 60fps the sprite is only changin to the next sprite 24fps
+	int m_FrameRate = 5;
+	double m_ElapsedTime = 0;
+	double m_MSDelay = 0; //Calculated from m_FrameRate
 
 	int m_XFactor = 0, m_YFactor = 0; //The size in pixels each sprite is on the spritesheet (uniform through the sheet)
 	SDL_Surface* m_Surface = nullptr;
@@ -56,9 +55,9 @@ private:
 
 	std::string GetXMLFilePath() { return m_FilePath + ".xml"; }
 	std::string GetPNGFilePath() { return m_FilePath + ".png"; }
-
-	//Add failure guards
+	
 	void Init();
+	void CalcMSDelay(); //16.7ish 60fps, 33.3ish 30fps,  41.7ish 24fps (rounded to ints)
 };
 
 //SpriteSheets are composed of a number of sprite rects of a fixes size, x by y,

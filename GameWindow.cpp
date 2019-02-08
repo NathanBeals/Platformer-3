@@ -75,7 +75,7 @@ void GameWindow::Main()
 		UpdateGenerator::GetInstance().Render();
 		SDL_RenderPresent(gRenderer); 
 
-		//Lock FrameRate...... uhhhhh TODO: what am I doing here
+		//HACK: Lock FrameRate...... uhhhhh TODO: what am I doing here
 		auto dTime = DeltaTimer::GetDeltaTime();
 		auto res = static_cast<int>(std::round(dTime / 1000.0)) % 20; //% 20.0;
 		SDL_Delay(20 - res); //TODO: consider consistent framerates? //60ish fps, I think vsync is on so it'll cap at 60 unless I don't want it to

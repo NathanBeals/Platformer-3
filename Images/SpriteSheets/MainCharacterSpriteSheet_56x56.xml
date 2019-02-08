@@ -1,6 +1,7 @@
 <Root>
     <XFactor>56</XFactor>
     <YFactor>56</YFactor>
+	<FrameRate>24</FrameRate>
     <Animations>
         <Animation>
             <Name>IdleL</Name>

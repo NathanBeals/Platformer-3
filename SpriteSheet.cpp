@@ -34,10 +34,11 @@ void SpriteSheet::Update()
 {
 	if (!m_CurrentAnimation) return;
 
-	m_TimePassed += DeltaTimer::GetDeltaTime();
-	if (m_TimePassed > m_MSDelay)
+	//Adjust for spritesheets with animations not made for 60fps
+	m_ElapsedTime += DeltaTimer::GetDeltaTime();
+	if (m_ElapsedTime > m_MSDelay)
 	{
-		m_TimePassed = 0;
+		m_ElapsedTime = 0;
 		m_CurrentAnimation->UpdateFrame();
 	}
 }
@@ -63,6 +64,7 @@ bool SpriteSheet::Save()
 	/* XML File Format
 	XFactor
 	YFactor
+	FrameRate
 	Animations
 		Animation
 			Name
@@ -78,13 +80,16 @@ bool SpriteSheet::Save()
 	auto *pRoot = xmlDoc.NewElement("Root");
 	xmlDoc.InsertFirstChild(pRoot);
 
-	//XFactor, YFactor
+	//XFactor, YFactor, Framerate
 	auto *pNXFactor = xmlDoc.NewElement("XFactor");
 	pNXFactor->SetText(m_XFactor);
 	pRoot->InsertEndChild(pNXFactor);
 	auto *pNYFactor = xmlDoc.NewElement("YFactor");
 	pNYFactor->SetText(m_YFactor);
 	pRoot->InsertEndChild(pNYFactor);
+	auto *pFrameRate = xmlDoc.NewElement("FrameRate");
+	pFrameRate->SetText(m_FrameRate);
+	pRoot->InsertEndChild(pFrameRate);
 
 	//Animations
 	auto *pNAnimations = xmlDoc.NewElement("Animations");
@@ -112,13 +117,15 @@ bool SpriteSheet::Load()
 
 	auto *pXFactor = pRoot->FirstChildElement("XFactor");
 	auto *pYFactor = pRoot->FirstChildElement("YFactor");
+	auto *pFrameRate = pRoot->FirstChildElement("FrameRate");
 	auto *pAnimations = pRoot->FirstChildElement("Animations");
-	if (!pXFactor || !pYFactor || !pAnimations) {}
+	if (!pXFactor || !pYFactor || !pFrameRate|| !pAnimations) {}
 	else
 	{
 		//SpriteSheet
 		pXFactor->QueryIntText(&m_XFactor);
 		pYFactor->QueryIntText(&m_YFactor);
+		pFrameRate->QueryIntText(&m_FrameRate);
 
 		//Animations
 		auto *pAnim = pAnimations->FirstChildElement("Animation");
@@ -161,11 +168,14 @@ void SpriteSheet::TestRender(SDL_Surface * GlobalSurface, SDL_Renderer * Rendere
 		SDL_DestroyTexture(newtex);
 }
 
+void SpriteSheet::CalcMSDelay()
+{
+	m_MSDelay = 1000 / m_FrameRate;
+}
+
 //TODO: look at simplifying this area, possibly
 void SpriteSheet::Init()
 {
-	m_MSDelay = 1000 / m_FrameRate;
-
 	//XML File load / Saving
 	if (Load())
 		printf(("SpriteSheet loaded from file, " + m_FilePath).c_str());
@@ -173,6 +183,9 @@ void SpriteSheet::Init()
 		printf(("Creating file for new SpriteSheet, " + m_FilePath).c_str());
 	else
 		printf(("SpriteSheet failed to load or save, " + m_FilePath).c_str());
+
+	//Adjust framerate for non-60fps animations
+	CalcMSDelay();
 
 	//Iamge File loading
 	auto loadedFlag = IMG_Init(IMG_INIT_PNG);
