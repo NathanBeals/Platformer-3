@@ -1,5 +1,3 @@
-#define Debugging 0; //HACK: Not DEBUG, pushing off setting up Release
-
 #include <stdio.h>
 #include "GameWindow.h"
 

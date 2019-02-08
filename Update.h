@@ -81,8 +81,6 @@ public:
 	virtual void HandleEvent(SDL_Event * Event) {};
 };
 
-#ifdef Debugging
-
 //Testing code, remove / comment out later
 class UpdatableClassTest : public IUpdatable
 {
@@ -102,5 +100,3 @@ public:
 		printf("Update\n");
 	}
 };
-
-#endif

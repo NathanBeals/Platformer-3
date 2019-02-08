@@ -54,36 +54,30 @@ void GameWindow::Main()
 	auto BackgroundImage = RenderImages::PNGImage(gRenderer, "./Images/base");
 	auto PlayerCharacter = Character(gRenderer, "./Images/SpriteSheets/MainCharacterSpriteSheet_56x56");
 
-#ifdef Debugging
 	auto test = UpdatableClassTest();
-#endif
 
-	int x = 0, y = 0;
-	int i = 0;
 	auto Events = std::vector<SDL_Event>();
 	while (true)
 	{
+		//Told to Exit
 		if (m_Exiting) break;
 
-		//TODO: re-evaluate this chunk, it's hard to read, as is most of main (base)
+		//Handle Events (SDL Input)
 		Events.clear();
 		SDL_Event e;
-
 		while (SDL_PollEvent(&e) != 0)
 			Events.push_back(SDL_Event(e));
 
+		//Generate Updates
 		UpdateGenerator::GetInstance().HandleEvents(&Events);
 		UpdateGenerator::GetInstance().Update();
 		UpdateGenerator::GetInstance().Render();
+		SDL_RenderPresent(gRenderer); 
 
-		SDL_RenderPresent(gRenderer); //can't fail? interesting
-
-		SDL_Delay(40); //TODO: consider consistent framerates?
-
-
-		BackgroundImage.SetDrawPosition(x, y);
-		x++; y--;
-		i++;
+		//Lock FrameRate...... uhhhhh TODO: what am I doing here
+		auto dTime = DeltaTimer::GetDeltaTime();
+		auto res = static_cast<int>(std::round(dTime / 1000.0)) % 20; //% 20.0;
+		SDL_Delay(20 - res); //TODO: consider consistent framerates?
 	}
 
 	Free();
