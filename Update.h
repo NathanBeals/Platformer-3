@@ -1,18 +1,31 @@
 #pragma once
+
 #include <vector>
 #include <SDL.h>
-//TODO: consider constness
-//TODO: Update file name to Updater/UpdateGenerator/UpdateHandler/etc
-class IUpdatable;
 
-//Handles passing updates down the chain to any class implementing IUpdatable
-//IUpdatables will attach themselves to the single Updater instance and handle updates by overriding their Update/Render methods
-class Updater
+//Attaches self as listener to UpdateGenerator on construction
+class IUpdatable
 {
 public:
-	Updater(Updater const&) = delete;
-	void operator=(Updater const &) = delete;
-	static Updater& GetInstance();
+	IUpdatable();
+	~IUpdatable();
+
+	virtual void Update() {};
+	virtual void Render() {};
+
+	void AttachToUpdateGenerator();
+	void RemoveFromUpdateGenerator();
+};
+
+
+//Funnels Update/Render calls from the main loop into its children
+//It's a singleton, the IUpdatables will latch onto it on their construction
+class UpdateGenerator
+{
+public:
+	UpdateGenerator(UpdateGenerator const&) = delete;
+	void operator=(UpdateGenerator const &) = delete;
+	static UpdateGenerator& GetInstance();
 
 	void HandleEvents(std::vector<SDL_Event> * Events);
 	void Update();
@@ -24,23 +37,8 @@ public:
 private:
 	std::vector<IUpdatable*> m_Children = std::vector<IUpdatable*>();
 
-	Updater() { };
-	~Updater();
-};
-
-//Classes that wish to recieve updates/render calls will derive from this class and override the calls they wish to recieve
-//The class will attach istelf to the static instance of Updater and get calls through it
-class IUpdatable
-{
-public:
-	IUpdatable();
-	~IUpdatable();
-
-	virtual void Update() {};
-	virtual void Render() {};
-
-	void AttachToUpdater();
-	void RemoveFromUpdater();
+	UpdateGenerator() { };
+	~UpdateGenerator();
 };
 
 //Once the instance is created (through a call to GetInstance()) it will add itself to Updaters children and start calcualting deltatimes for its own updates and,
@@ -66,26 +64,6 @@ private:
 	~DeltaTimer() {};
 };
 
-//Testing code, remove / comment out later
-class TestUpdater : public IUpdatable
-{
-public:
-	TestUpdater()
-		: IUpdatable()
-	{
-
-	}
-
-	void Update() override
-	{
-		auto dtim = DeltaTimer::GetDeltaTime();
-		if (dtim > 300.0 && dtim < 600)
-			printf("it happened\n");
-		//printf("Delta Time: %f\n", DeltaTimer::GetDeltaTime());
-		//printf("Update\n");
-	}
-};
-
 class IEventHandler : public IUpdatable
 {
 public:
@@ -95,10 +73,34 @@ public:
 
 	}
 
-	virtual void HandleEvents(std::vector<SDL_Event> * Events) 
+	virtual void HandleEvents(std::vector<SDL_Event> * Events)
 	{
 		for (auto x : *Events)
 			HandleEvent(&x);
 	};
 	virtual void HandleEvent(SDL_Event * Event) {};
 };
+
+#ifdef Debugging
+
+//Testing code, remove / comment out later
+class UpdatableClassTest : public IUpdatable
+{
+public:
+	UpdatableClassTest()
+		: IUpdatable()
+	{
+
+	}
+
+	void Update() override
+	{
+		auto dtim = DeltaTimer::GetDeltaTime();
+		//if (dtim > 300.0 && dtim < 600)
+		//	printf("it happened\n");
+		printf("Delta Time: %f\n", DeltaTimer::GetDeltaTime());
+		printf("Update\n");
+	}
+};
+
+#endif

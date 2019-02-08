@@ -2,67 +2,67 @@
 #include <algorithm>
 #include <SDL.h>
 
-Updater & Updater::GetInstance()
+UpdateGenerator & UpdateGenerator::GetInstance()
 {
-	static Updater instance;
+	static UpdateGenerator instance;
 	return instance;
 }
 
-void Updater::HandleEvents(std::vector<SDL_Event>* Events)
+void UpdateGenerator::HandleEvents(std::vector<SDL_Event>* Events)
 {
 	for (auto x : m_Children)
 		if (auto ptr = dynamic_cast<IEventHandler*>(&*x))
 			ptr->HandleEvents(Events);
 }
 
-void Updater::Update()
+void UpdateGenerator::Update()
 {
 	for (auto x : m_Children)
 		x->Update();
 }
 
-void Updater::Render() //TODO: Also pass the renderer maybe
+void UpdateGenerator::Render()
 {
 	for (auto x : m_Children)
 		x->Render();
 }
 
-void Updater::AddChild(IUpdatable * Child)
+void UpdateGenerator::AddChild(IUpdatable * Child)
 {
 	auto res = std::find_if(std::begin(m_Children), std::end(m_Children), [&](auto a) {return a == Child; });
 	if (res == std::end(m_Children))
 		m_Children.push_back(Child);
 }
 
-void Updater::RemoveChild(IUpdatable * Child)
+void UpdateGenerator::RemoveChild(IUpdatable * Child)
 {
 	auto res = std::find_if(std::begin(m_Children), std::end(m_Children), [&](auto a) {return a == Child; });
 	if (res != std::end(m_Children))
 		m_Children.erase(res);
 }
 
-Updater::~Updater()
+UpdateGenerator::~UpdateGenerator()
 {
 	m_Children.clear();
 }
 
 IUpdatable::IUpdatable()
 {
-	AttachToUpdater();
+	AttachToUpdateGenerator();
 }
 
 IUpdatable::~IUpdatable()
 {
 }
 
-void IUpdatable::AttachToUpdater()
+void IUpdatable::AttachToUpdateGenerator()
 {
-	Updater::GetInstance().AddChild(this);
+	UpdateGenerator::GetInstance().AddChild(this);
 }
 
-void IUpdatable::RemoveFromUpdater()
+void IUpdatable::RemoveFromUpdateGenerator()
 {
-	Updater::GetInstance().RemoveChild(this);
+	UpdateGenerator::GetInstance().RemoveChild(this);
 }
 
 DeltaTimer & DeltaTimer::GetInstance()
@@ -84,7 +84,7 @@ void DeltaTimer::UpdateDeltaTime()
 	auto dork = m_Now - m_Last;
 	auto whatever = SDL_GetPerformanceFrequency();
 
-	m_DeltaTime = (double)((m_Now - m_Last) * 1000 / (double)SDL_GetPerformanceFrequency());
+	m_DeltaTime = static_cast<double>((m_Now - m_Last) * 1000 / static_cast<double>(SDL_GetPerformanceFrequency()));
 }
 
 double DeltaTimer::GetDeltaTime() 

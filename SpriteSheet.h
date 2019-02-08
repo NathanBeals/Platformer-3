@@ -4,6 +4,7 @@
 #include <SDL_image.h>
 #include <string>
 #include <vector>
+
 #include "tinyxml2.h"
 
 class Animation;

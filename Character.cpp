@@ -52,8 +52,8 @@ void Character::Update()
 	}
 
 	m_SpriteSheet.Update();
-	m_X += m_XVelocity * (DeltaTimer::GetDeltaTime() / 1000.0); //TODO: deltatime returns milisecond results, may needs some fine tuning
-	m_Y += m_YVelocity * (DeltaTimer::GetDeltaTime() / 1000.0);
+	m_X += m_XVelocity * static_cast<float>((DeltaTimer::GetDeltaTime() / 1000.0)); //TODO: deltatime returns milisecond results, may needs some fine tuning
+	m_Y += m_YVelocity * static_cast<float>((DeltaTimer::GetDeltaTime() / 1000.0));
 
 	if (m_ApplyFrictionThisFrame)
 		ApplyFriction();
@@ -64,7 +64,7 @@ void Character::Update()
 
 void Character::Render()
 {
-	m_SpriteSheet.RenderSprite(std::round(m_X), std::round(m_Y));
+	m_SpriteSheet.RenderSprite(static_cast<int>(std::round(m_X)), static_cast<int>(std::round(m_Y)));
 }
 
 void Character::HandleEvents(std::vector<SDL_Event>* Events)
@@ -79,8 +79,6 @@ void Character::HandleEvent(SDL_Event * Event)
 
 void Character::ApplyFriction()
 {
-	//Friction?
-	//TODO: remove test code, make actual friction function
 	m_XVelocity /= 1.2f;
 	m_YVelocity /= 1.2f;
 

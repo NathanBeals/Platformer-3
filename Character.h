@@ -1,9 +1,10 @@
 #pragma once
 
+#include <SDL.h>
+#include <vector>
+
 #include "Update.h"
 #include "SpriteSheet.h"
-#include <vector>
-#include <SDL.h>
 
 //derived class PlayerCharacter to be added later
 //derived class AI character to be added later possibly

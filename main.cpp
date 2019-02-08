@@ -5,18 +5,16 @@ and may not be redistributed without written permission.*/
 //Removing comments on things that will likely be removed or moved elsewhere
 //TODO: Remove all these gross globals
 //TODO: many of these comments are from the lazyfoo tutorial and won't make sense in the application, re-evaluate comments when moved
-
+//#define Debugging 0;
 //Using SDL and standard IO
 #include <SDL.h>
 #include <stdio.h>
+#include <memory>
+#include <algorithm>
 
 #include "tinyxml2.h"
-#include <memory>
-
 #include "Update.h"
 #include "SpriteSheet.h"
-
-#include <algorithm>
 #include "EventHandlers.h"
 #include "Character.h"
 
@@ -139,7 +137,10 @@ void MainLoop()
 	auto ExitHandler = EHandlers::ProgramExitHandler(&bQuit); //Handles Escape + top right X application exiting by modifying the bQuit bool
 
 	auto PlayerCharacter = Character(gRenderer, "./Images/SpriteSheets/MainCharacterSpriteSheet_56x56");
-	auto test = TestUpdater();
+	
+#ifdef Debugging
+	auto test = UpdatableClassTest();
+#endif // Debugging
 
 	//TODO: more consideration should be used for this updating logic, it's important after all
 	int i = 0;
@@ -155,9 +156,9 @@ void MainLoop()
 		while (SDL_PollEvent(&e) != 0)
 			Events.push_back(SDL_Event(e));
 
-		Updater::GetInstance().HandleEvents(&Events);
-		Updater::GetInstance().Update();
-		Updater::GetInstance().Render();
+		UpdateGenerator::GetInstance().HandleEvents(&Events);
+		UpdateGenerator::GetInstance().Update();
+		UpdateGenerator::GetInstance().Render();
 
 		SDL_RenderPresent(gRenderer); //can't fail? interesting
 
