@@ -1,5 +1,7 @@
 #pragma once
 
+//TODO: spritesheets need to also record their framerate and adjust based on it
+
 #include <SDL.h>
 #include <SDL_image.h>
 #include <string>
@@ -19,7 +21,7 @@ class SpriteSheet;
 class SpriteSheet
 {
 public:
-	SpriteSheet(SDL_Renderer* Renderer, std::string FilePath);
+	SpriteSheet(SDL_Renderer* Renderer, std::string FilePath); //Framerate? or just store that in the xml aswell?
 	~SpriteSheet();
 	bool RequestAnimation(std::string Name);
 	void Update();
@@ -37,6 +39,14 @@ public:
 private:
 	SDL_Renderer* m_Renderer = nullptr;
 	std::string m_FilePath = "Test";
+
+	//Alternate framerate than render 
+	//Expl. I want the game to run at 60fps, but I know this sheet normally plays at 24fps, so I need to accomodate a 24fps sprite in a 60fps application
+	//HACK: this may just be crazyness
+	double m_TimePassed = 0;
+	double m_FrameRate = 5;
+	double m_MSDelay = 0;
+
 	int m_XFactor = 0, m_YFactor = 0; //The size in pixels each sprite is on the spritesheet (uniform through the sheet)
 	SDL_Surface* m_Surface = nullptr;
 	SDL_Texture* m_SpriteTexture = nullptr;

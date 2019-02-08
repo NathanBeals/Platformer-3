@@ -1,5 +1,6 @@
 #include "SpriteSheet.h"
 #include <algorithm>
+#include "Update.h"
 
 SpriteSheet::SpriteSheet(SDL_Renderer* Renderer, std::string FilePath)
 	: m_Renderer(Renderer)
@@ -32,7 +33,13 @@ bool SpriteSheet::RequestAnimation(std::string Name)
 void SpriteSheet::Update()
 {
 	if (!m_CurrentAnimation) return;
-	m_CurrentAnimation->UpdateFrame();
+
+	m_TimePassed += DeltaTimer::GetDeltaTime();
+	if (m_TimePassed > m_MSDelay)
+	{
+		m_TimePassed = 0;
+		m_CurrentAnimation->UpdateFrame();
+	}
 }
 
 void SpriteSheet::RenderSprite(int X, int Y)
@@ -157,6 +164,8 @@ void SpriteSheet::TestRender(SDL_Surface * GlobalSurface, SDL_Renderer * Rendere
 //TODO: look at simplifying this area, possibly
 void SpriteSheet::Init()
 {
+	m_MSDelay = 1000 / m_FrameRate;
+
 	//XML File load / Saving
 	if (Load())
 		printf(("SpriteSheet loaded from file, " + m_FilePath).c_str());

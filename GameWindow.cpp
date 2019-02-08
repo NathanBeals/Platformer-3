@@ -54,6 +54,7 @@ void GameWindow::Main()
 	auto BackgroundImage = RenderImages::PNGImage(gRenderer, "./Images/base");
 	auto PlayerCharacter = Character(gRenderer, "./Images/SpriteSheets/MainCharacterSpriteSheet_56x56");
 
+	//Test class that just prints out deltatimes
 	auto test = UpdatableClassTest();
 
 	auto Events = std::vector<SDL_Event>();
@@ -77,7 +78,7 @@ void GameWindow::Main()
 		//Lock FrameRate...... uhhhhh TODO: what am I doing here
 		auto dTime = DeltaTimer::GetDeltaTime();
 		auto res = static_cast<int>(std::round(dTime / 1000.0)) % 20; //% 20.0;
-		SDL_Delay(20 - res); //TODO: consider consistent framerates?
+		SDL_Delay(20 - res); //TODO: consider consistent framerates? //60ish fps, I think vsync is on so it'll cap at 60 unless I don't want it to
 	}
 
 	Free();
