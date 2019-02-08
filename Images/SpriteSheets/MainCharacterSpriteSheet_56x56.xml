@@ -21,14 +21,14 @@
             <Repeats>true</Repeats>
             <StartRow>2</StartRow>
             <StartCol>0</StartCol>
-            <FrameCount>11</FrameCount>
+            <FrameCount>10</FrameCount>
         </Animation>
 		        <Animation>
             <Name>Right</Name>
             <Repeats>true</Repeats>
             <StartRow>3</StartRow>
             <StartCol>0</StartCol>
-            <FrameCount>11</FrameCount>
+            <FrameCount>10</FrameCount>
         </Animation>
 		        <Animation>
             <Name>JumpL</Name>
