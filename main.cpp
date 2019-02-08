@@ -5,8 +5,10 @@ and may not be redistributed without written permission.*/
 //Removing comments on things that will likely be removed or moved elsewhere
 //TODO: Remove all these gross globals
 //TODO: many of these comments are from the lazyfoo tutorial and won't make sense in the application, re-evaluate comments when moved
-//#define Debugging 0;
-//Using SDL and standard IO
+
+
+#define Debugging 0; //HACK: Not DEBUG, pushing off setting up Release
+
 #include <SDL.h>
 #include <stdio.h>
 #include <memory>
@@ -18,39 +20,38 @@ and may not be redistributed without written permission.*/
 #include "EventHandlers.h"
 #include "Character.h"
 
-//Screen dimension constants
+//Applications will attempt to exit when true
+bool bQuit = false;
+
+//Window
 const int SCREEN_WIDTH = 1000;
 const int SCREEN_HEIGHT = 1000;
 
 //TODO: Tutorial functions to be elevated
-bool init();
-bool loadMedia();
-void close();
+bool Init();
+bool LoadMedia();
+void Close();
 
 SDL_Window* gWindow = NULL;
 SDL_Surface* gScreenSurface = NULL;
 SDL_Surface* gHelloWorld = NULL;
 SDL_Renderer* gRenderer = NULL;
 
-//
-bool bQuit = false;
+class GameWindow;
 
-bool init()
+bool EarlyExitOnTrue(bool Condition, std::string FailureString = "")
 {
-	//Initialize SDL
-	if (SDL_Init(SDL_INIT_VIDEO) < 0)
-	{
-		printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
-		return false;
-	}
+	if (!Condition) return Condition;
+	printf(FailureString.c_str());
+	Close();
+	return Condition;
+}
 
-	//Create window
-	gWindow = SDL_CreateWindow("SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
-	if (gWindow == NULL)
-	{
-		printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
-		return false;
-	}
+bool Init()
+{
+	if (SDL_Init(SDL_INIT_VIDEO) != 0) return false;
+	gWindow = SDL_CreateWindow("SDL Game Window (Insert Pun Here)", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+	if (!gWindow) return false;
 
 	//Get window surface
 	gScreenSurface = SDL_GetWindowSurface(gWindow);
@@ -63,7 +64,7 @@ bool init()
 }
 
 //TODO: Remove/rework, non-applicaple to final product
-bool loadMedia()
+bool LoadMedia()
 {
 	//Load splash image
 	gHelloWorld = SDL_LoadBMP("Images/base.bmp");
@@ -76,7 +77,7 @@ bool loadMedia()
 	return true;
 }
 
-void close()
+void Close()
 {
 	//Deallocate surface
 	SDL_FreeSurface(gHelloWorld);
@@ -93,45 +94,26 @@ void close()
 	IMG_Quit();
 }
 
-namespace
-{
-	//HACK: Well, huh... I have a gut feeling this method is a complete wash but huh, re-evaluate later
-	//My quest to remove the nesting of the tutorial continues
-	bool EarlyExitOnTrue(bool Condition, std::string FailureString = "")
-	{
-		if (!Condition) return Condition;
-		printf(FailureString.c_str());
-		close();
-		return Condition;
-	}
-}
-
 void MainLoop();
 
 int main(int argc, char* args[])
 {
+	if (EarlyExitOnTrue(!Init(), "Failure to Init")) return 1;
+	if (EarlyExitOnTrue(!LoadMedia(), "Failure to Load Media")) return 1;
+	if (EarlyExitOnTrue(SDL_SetRenderDrawColor(gRenderer, 0x30, 0xFF, 0xFF, 0xFF), "Failure to Change Render Color")) return 1;
+	if (EarlyExitOnTrue(SDL_RenderClear(gRenderer), "Failure to Clear Renderer")) return 1;
+	if (EarlyExitOnTrue(SDL_BlitSurface(gHelloWorld, NULL, gScreenSurface, NULL), "Blit Test Failed")) return 1;
+	if (EarlyExitOnTrue(SDL_UpdateWindowSurface(gWindow), "Update Windows Surface Failed")) return 1;
+
 	MainLoop();
-	close(); //If this doesn't get called it means I'm a bad person
-	return 0; //Moving to a void function makes this return value rather meaningless does it not?
+	Close();
+	return 0;
 }
 
 void SpriteSheetTests();
 
-//TODO: name too cheeky?
-//TODO: Jesus a lot of these functions can fail returning -1, Checking them all would be the right thing to do but boy do I not want to
 void MainLoop()
 {
-	//HACK: what are these doing in a method called, MAIN LOOP??
-	if (EarlyExitOnTrue(!init(), "Failure to Init")) return;
-	if (EarlyExitOnTrue(!loadMedia(), "Failure to Load Media")) return;
-
-	//is 0 true or false? I can never remember
-	//false == 0
-	if (EarlyExitOnTrue(SDL_SetRenderDrawColor(gRenderer, 0x30, 0xFF, 0xFF, 0xFF), "Failure to Change Render Color")) return;
-	if (EarlyExitOnTrue(SDL_RenderClear(gRenderer), "Failure to Clear Renderer")) return;
-	if (EarlyExitOnTrue(SDL_BlitSurface(gHelloWorld, NULL, gScreenSurface, NULL), "Blit Test Failed")) return;
-	if (EarlyExitOnTrue(SDL_UpdateWindowSurface(gWindow), "Update Windows Surface Failed")) return;
-
 	//Init the Delta Timer (attaches self to Updater and starts calculating time since last call)
 	DeltaTimer::GetInstance();
 	auto ExitHandler = EHandlers::ProgramExitHandler(&bQuit); //Handles Escape + top right X application exiting by modifying the bQuit bool
@@ -169,60 +151,4 @@ void MainLoop()
 
 	//if (!bQuit)
 	//	SpriteSheetTests();
-}
-
-//Tests for sprite sheet animations
-void SpriteSheetTests()
-{
-	auto sheet = SpriteSheet(gRenderer, "../Images/SpriteSheets/MainCharacterSpriteSheet_56x56");
-
-	//Metroid Fusion Test Sheet
-	/* Test Animation Names from sheet
-	IdleL 3
-	IdleR 3
-	Left 11
-	Right 11
-	JumpL 5
-	JumpR 5
-	FallL 1 
-	FallR 1 
-	LandL 3
-	LandR 3
-	*/
-
-	//This is a bonkers loop
-	int i = 0;
-	while (i < 50)
-	{
-		SDL_RenderClear(gRenderer);
-
-		if (i == 0)
-			sheet.RequestAnimation("IdleL");
-		if (i == 3)
-			sheet.RequestAnimation("IdleR");
-		if (i == 6)
-			sheet.RequestAnimation("Left");
-		if (i == 17)
-			sheet.RequestAnimation("Right");
-		if (i == 28)
-			sheet.RequestAnimation("JumpL");
-		if (i == 33)
-			sheet.RequestAnimation("JumpR");
-		if (i == 38)
-			sheet.RequestAnimation("FallL");
-		if (i == 39)
-			sheet.RequestAnimation("FallR");
-		if (i == 40)
-			sheet.RequestAnimation("LandL");
-		if (i == 43)
-			sheet.RequestAnimation("LandR");
-
-		//Sprite Render and Update (Update will increment the frame)
-		sheet.RenderSprite(50, 50);
-		sheet.Update();
-
-		SDL_RenderPresent(gRenderer); //can't fail? interesting
-		SDL_Delay(200);
-		++i;
-	}
 }

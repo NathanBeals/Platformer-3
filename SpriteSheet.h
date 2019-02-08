@@ -35,7 +35,7 @@ public:
 
 	//TestingFunctions //TODO: remove
 	void InitDummyFile();
-	void TestRender(SDL_Surface * GlobalSurface, SDL_Renderer * Renderer); 
+	void TestRender(SDL_Surface * GlobalSurface, SDL_Renderer * Renderer);
 
 private:
 	SDL_Renderer* m_Renderer = nullptr;
@@ -78,5 +78,62 @@ private:
 	int m_CurrentFrame = 0;
 };
 
+#ifdef  Debugging
 
+	//Tests for sprite sheet animations
+	void SpriteSheetTests(SDL_Renderer *Renderer)
+	{
+		auto sheet = SpriteSheet(Renderer, "../Images/SpriteSheets/MainCharacterSpriteSheet_56x56");
 
+		//Metroid Fusion Test Sheet
+		/* Test Animation Names from sheet
+		IdleL 3
+		IdleR 3
+		Left 11
+		Right 11
+		JumpL 5
+		JumpR 5
+		FallL 1
+		FallR 1
+		LandL 3
+		LandR 3
+		*/
+
+		//This is a bonkers loop
+		int i = 0;
+		while (i < 50)
+		{
+			SDL_RenderClear(Renderer);
+
+			if (i == 0)
+				sheet.RequestAnimation("IdleL");
+			if (i == 3)
+				sheet.RequestAnimation("IdleR");
+			if (i == 6)
+				sheet.RequestAnimation("Left");
+			if (i == 17)
+				sheet.RequestAnimation("Right");
+			if (i == 28)
+				sheet.RequestAnimation("JumpL");
+			if (i == 33)
+				sheet.RequestAnimation("JumpR");
+			if (i == 38)
+				sheet.RequestAnimation("FallL");
+			if (i == 39)
+				sheet.RequestAnimation("FallR");
+			if (i == 40)
+				sheet.RequestAnimation("LandL");
+			if (i == 43)
+				sheet.RequestAnimation("LandR");
+
+			//Sprite Render and Update (Update will increment the frame)
+			sheet.RenderSprite(50, 50);
+			sheet.Update();
+
+			SDL_RenderPresent(Renderer); //can't fail? interesting
+			SDL_Delay(200);
+			++i;
+		}
+	}
+
+#endif //  Debugging
