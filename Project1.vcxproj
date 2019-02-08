@@ -124,6 +124,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="GameWindow.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Character.cpp" />
     <ClCompile Include="EventHandlers.cpp" />
@@ -134,6 +135,8 @@
   <ItemGroup>
     <ClInclude Include="Character.h" />
     <ClInclude Include="EventHandlers.h" />
+    <ClInclude Include="GameWindow.h" />
+    <ClInclude Include="Images.h" />
     <ClInclude Include="SpriteSheet.h" />
     <ClInclude Include="tinyxml2.h" />
     <ClInclude Include="Update.h" />

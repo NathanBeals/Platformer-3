@@ -11,7 +11,7 @@ SpriteSheet::SpriteSheet(SDL_Renderer* Renderer, std::string FilePath)
 SpriteSheet::~SpriteSheet()
 {
 	m_Renderer = nullptr; 
-	SDL_FreeSurface(m_OptiSurface);
+	SDL_FreeSurface(m_Surface);
 	SDL_DestroyTexture(m_SpriteTexture);
 }
 
@@ -139,7 +139,7 @@ void SpriteSheet::InitDummyFile()
 
 void SpriteSheet::TestRender(SDL_Surface * GlobalSurface, SDL_Renderer * Renderer)
 {
-	SDL_Texture* newtex = SDL_CreateTextureFromSurface(Renderer, m_OptiSurface); //can fail
+	SDL_Texture* newtex = SDL_CreateTextureFromSurface(Renderer, m_Surface); //can fail
 	SDL_SetTextureBlendMode(newtex, SDL_BLENDMODE_BLEND); //can fail
 
 	auto myrect = SDL_Rect();
@@ -167,15 +167,15 @@ void SpriteSheet::Init()
 
 	//Iamge File loading
 	auto loadedFlag = IMG_Init(IMG_INIT_PNG);
-	m_OptiSurface = IMG_Load(GetPNGFilePath().c_str());
+	m_Surface = IMG_Load(GetPNGFilePath().c_str());
 
-	if (loadedFlag == 0 || !m_OptiSurface)
+	if (loadedFlag == 0 || !m_Surface)
 		printf(("Image failed to load, " + m_FilePath).c_str());
 
 	//TODO: move to init
 	if (m_SpriteTexture)
 		SDL_DestroyTexture(m_SpriteTexture);
-	m_SpriteTexture = SDL_CreateTextureFromSurface(m_Renderer, m_OptiSurface);
+	m_SpriteTexture = SDL_CreateTextureFromSurface(m_Renderer, m_Surface);
 	SDL_SetTextureBlendMode(m_SpriteTexture, SDL_BLENDMODE_BLEND); //can fail
 }
 

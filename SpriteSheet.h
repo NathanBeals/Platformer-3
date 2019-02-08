@@ -11,9 +11,6 @@ class Animation;
 class Sprite;
 class SpriteSheet;
 
-//TODO: Ordering
-
-//Contained in a character?
 //XML MetaData File + PNG Spritesheet
 //Spritesheet contains individual frames of animation ordered in rows of a set x by y size
 //The spritesheets are set that animations start at a row/col and continue to the right until done
@@ -41,7 +38,7 @@ private:
 	SDL_Renderer* m_Renderer = nullptr;
 	std::string m_FilePath = "Test";
 	int m_XFactor = 0, m_YFactor = 0; //The size in pixels each sprite is on the spritesheet (uniform through the sheet)
-	SDL_Surface* m_OptiSurface = nullptr;
+	SDL_Surface* m_Surface = nullptr;
 	SDL_Texture* m_SpriteTexture = nullptr;
 
 	Animation* m_CurrentAnimation = nullptr;
