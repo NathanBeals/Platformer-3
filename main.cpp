@@ -138,7 +138,7 @@ void MainLoop()
 	DeltaTimer::GetInstance();
 	auto ExitHandler = EHandlers::ProgramExitHandler(&bQuit); //Handles Escape + top right X application exiting by modifying the bQuit bool
 
-	auto PlayerCharacter = Character(gRenderer, "C://Users//beals_000//source//repos//Project1/Project1/HelloWorld");
+	auto PlayerCharacter = Character(gRenderer, "./Images/SpriteSheets/MainCharacterSpriteSheet_56x56");
 	auto test = TestUpdater();
 
 	//TODO: more consideration should be used for this updating logic, it's important after all
@@ -173,7 +173,7 @@ void MainLoop()
 //Tests for sprite sheet animations
 void SpriteSheetTests()
 {
-	auto sheet = SpriteSheet(gRenderer, "C://Users//beals_000//source//repos//Project1/Project1/HelloWorld");
+	auto sheet = SpriteSheet(gRenderer, "../Images/SpriteSheets/MainCharacterSpriteSheet_56x56");
 
 	//Metroid Fusion Test Sheet
 	/* Test Animation Names from sheet
