@@ -1,13 +1,8 @@
 #pragma once
-//TODO: it's not called gameobject anymore, change file name to Physics or something?
-//TODO: reconsider the relationship between physics Objects and their parents...
-//Right now it's tentatively, A character has a spritesheet and can have a PhysicsObject, A PNGImage can have a PhysicsObject, but is not an EventHandler. 
-//Physics objects will have to attach themselves to a PhysicsManager, but because it's a manager not a singleton it won't be possible to do it autoMagically. Hmmmm, maybe have a list of Managers in some manager manager referencable by string?
-//TODO: use vector2f more liberally, also maybe template it?
+
 #include "Update.h"
-#include "Images.h"
 #include <vector>
-#include <math.h>
+
 
 struct Vector2f;
 class PhysicsObject;
@@ -46,7 +41,6 @@ class PhysicsManager : IUpdatable
 
 	void Update() override;
 
-	//TODO: make private like 
 	void AddChild(PhysicsObject * Child);
 	void RemoveChild(PhysicsObject * Child);
 

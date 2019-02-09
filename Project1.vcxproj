@@ -124,7 +124,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="PhysicsObjects.cpp" />
     <ClCompile Include="GameWindow.cpp" />
     <ClCompile Include="Images.cpp" />
     <ClCompile Include="main.cpp" />
@@ -137,7 +137,7 @@
   <ItemGroup>
     <ClInclude Include="Character.h" />
     <ClInclude Include="EventHandlers.h" />
-    <ClInclude Include="GameObject.h" />
+    <ClInclude Include="PhysicsObjects.h" />
     <ClInclude Include="GameWindow.h" />
     <ClInclude Include="Images.h" />
     <ClInclude Include="SpriteSheet.h" />

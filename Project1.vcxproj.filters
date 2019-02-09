@@ -36,10 +36,10 @@
     <ClCompile Include="GameWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GameObject.cpp">
+    <ClCompile Include="Images.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Images.cpp">
+    <ClCompile Include="PhysicsObjects.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -65,7 +65,7 @@
     <ClInclude Include="GameWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GameObject.h">
+    <ClInclude Include="PhysicsObjects.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
