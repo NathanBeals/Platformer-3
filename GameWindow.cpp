@@ -52,7 +52,7 @@ void GameWindow::Main()
 	auto ExitHandler = EHandlers::ProgramExitHandler(&m_Exiting); //Handles Escape + top right X application exiting by modifying the bQuit bool
 
 	auto BackgroundImage = RenderImages::PNGImage(gRenderer, "./Images/base");
-	auto PlayerCharacter = Character(gRenderer, "./Images/SpriteSheets/MainCharacterSpriteSheet_56x56");
+	auto PlayerCharacter = Character(gRenderer, "./Images/SpriteSheets/MainCharacterSpriteSheet_56x56", "Foreground");
 
 	//Test class that just prints out deltatimes
 	auto test = UpdatableClassTest();

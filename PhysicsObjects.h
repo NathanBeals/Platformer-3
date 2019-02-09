@@ -18,13 +18,11 @@ Essentially it should work like this,
 	Every Update to a PhysicsObject will add velocities, change the x/yOffsets, and update the bounds by the new offsets.
 */
 
-
 struct Vector2f;
 class PhysicsObject;
 class PhysicsManager;
 struct PhysicsManagerNamedPair;
 
-//Being able to request things anywhere is just too nice
 class PhysicsManagerContainer
 {
 public:
@@ -39,10 +37,9 @@ private:
 
 	PhysicsManagerContainer() { };
 	~PhysicsManagerContainer();
-
 };
 
-//Not a singleton like update, I'm thinking of having seperate layers of collidable objects
+//List of Physics Objects by layer
 class PhysicsManager : IUpdatable
 {
 public:
@@ -56,10 +53,6 @@ public:
 private:
 	std::vector<PhysicsObject*> m_Children = std::vector<PhysicsObject*>();
 
-	//Sees if any physics object collides with any other physics obejct managed by this container
-//Applies forced movement (to stop overlapping), new velocities, and tells the colliders to update their offsets...
-//TODO: think more on these comments
-	//Current method won't handle multiple collisions gracefully, consider
 	void ProcessCollisions();
 	void ProcessCollision(PhysicsObject * A, PhysicsObject * B, SDL_Rect *aCol, SDL_Rect *bCol, SDL_Rect * Overlap);
 	void ForceObjectOutOfWay(PhysicsObject *LighterObject, SDL_Rect *Collider, SDL_Rect *Overlap);
@@ -72,12 +65,14 @@ class PhysicsObject
 {
 public:
 	//Offsets will be controlled by the PhysicsObject
-	PhysicsObject(std::vector<SDL_Rect> Colliders, float Weight, Vector2f *Offset)
-		: m_Colliders(Colliders)
+	PhysicsObject(std::string PhysicsManager, std::vector<SDL_Rect> Colliders, float Weight, Vector2f *Offset)
+		: m_PhysicsManager(PhysicsManager)
+		, m_Colliders(Colliders)
 		, m_Weight(Weight)
 		, m_ParentOffset(Offset)
 	{
 		SetOffset(*m_ParentOffset);
+		PhysicsManagerContainer::GetInstance().GetManger(PhysicsManager)->AddChild(this);
 	};
 
 	std::vector<SDL_Rect> const *GetRects() const;;
@@ -93,6 +88,7 @@ public:
 	void SetVelocity(Vector2f Velocity);
 
 private:
+	std::string m_PhysicsManager = "";
 	std::vector<SDL_Rect> m_Colliders = std::vector<SDL_Rect>();
 	float m_Weight = 0.0f;
 	Vector2f* m_ParentOffset = nullptr;
@@ -100,6 +96,7 @@ private:
 	Vector2f m_Velocity = Vector2f(0, 0);
 };
 
+//Helpers to construct the collider lists needed by PhysicObjects
 namespace Colliders
 {
 	std::vector<SDL_Rect> CreateSimpleBoxCollider(int x, int y, int w, int h)

@@ -5,7 +5,10 @@
 
 struct PhysicsManagerNamedPair
 {
-	PhysicsManagerNamedPair(std::string Name, PhysicsManager Manager) : name(Name), manager(Manager) {};
+	PhysicsManagerNamedPair(std::string Name) : name(Name) 
+	{
+		manager = PhysicsManager();
+	};
 
 	std::string name = "";
 	PhysicsManager manager;
@@ -151,11 +154,13 @@ PhysicsManagerContainer & PhysicsManagerContainer::GetInstance()
 
 PhysicsManager* PhysicsManagerContainer::GetManger(std::string const Name)
 {
+	//If the name exists
 	auto res = std::find_if(m_Children.begin(), m_Children.end(), [&](auto a) {return a.name == Name; });
 	if (res != m_Children.end()) return &res->manager;
 
-	m_Children.push_back(PhysicsManagerNamedPair(Name, PhysicsManager()));
-	return GetManger(Name);
+	//If the name does not exist, make a new manager and return that
+	m_Children.push_back(PhysicsManagerNamedPair(Name));
+	return &m_Children.back().manager;
 }
 
 PhysicsManagerContainer::~PhysicsManagerContainer()
