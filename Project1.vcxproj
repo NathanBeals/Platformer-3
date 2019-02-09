@@ -140,6 +140,7 @@
     <ClInclude Include="PhysicsObjects.h" />
     <ClInclude Include="GameWindow.h" />
     <ClInclude Include="Images.h" />
+    <ClInclude Include="PhysicsVectors.h" />
     <ClInclude Include="SpriteSheet.h" />
     <ClInclude Include="tinyxml2.h" />
     <ClInclude Include="Update.h" />

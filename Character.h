@@ -5,6 +5,7 @@
 
 #include "Update.h"
 #include "SpriteSheet.h"
+#include "PhysicsVectors.h"
 
 //derived class PlayerCharacter to be added later
 //derived class AI character to be added later possibly
