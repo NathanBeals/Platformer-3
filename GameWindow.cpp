@@ -33,15 +33,15 @@ bool GameWindow::Init()
 	if (SDL_Init(SDL_INIT_VIDEO) != 0) return false;
 
 	//Create Window
-	gWindow = SDL_CreateWindow("SDL Game Window (Insert Pun Here)", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, m_Width, m_Height, SDL_WINDOW_SHOWN);
-	if (!gWindow) return false;
+	m_Window = SDL_CreateWindow("SDL Game Window (Insert Pun Here)", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, m_Width, m_Height, SDL_WINDOW_SHOWN);
+	if (!m_Window) return false;
 
 	//Get window surface
-	gScreenSurface = SDL_GetWindowSurface(gWindow);
+	m_ScreenSurface = SDL_GetWindowSurface(m_Window);
 
 	//Create renderer for window
-	gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED);
-	SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+	m_Renderer = SDL_CreateRenderer(m_Window, -1, SDL_RENDERER_ACCELERATED);
+	SDL_SetRenderDrawColor(m_Renderer, 0xFF, 0xFF, 0xFF, 0xFF);
 
 	m_Initialized = true;
 	return true;
@@ -56,9 +56,9 @@ void GameWindow::Main()
 	auto ForegroundPhysicsManager = PhysicsManager();
 	auto ExitHandler = EHandlers::ProgramExitHandler(&m_Exiting); //Handles Escape + top right X application exiting by modifying the bQuit bool
 
-	auto BackgroundImage = RenderImages::PNGImage(gRenderer, "./Images/base");
-	auto PlayerCharacter = Character(gRenderer, "./Images/SpriteSheets/MainCharacterSpriteSheet_56x56", &ForegroundPhysicsManager);
-
+	auto BackgroundImage = RenderImages::PNGImage(m_Renderer, "./Images/base");
+	auto PlayerCharacter = Character(m_Renderer, "./Images/SpriteSheets/MainCharacterSpriteSheet_56x56", &ForegroundPhysicsManager);
+	auto RandomCube = RenderImages::SimpleImageObject(m_Renderer, "./Images/test50", &ForegroundPhysicsManager);
 	//Test class that just prints out deltatimes
 	auto test = UpdatableClassTest();
 
@@ -78,7 +78,7 @@ void GameWindow::Main()
 		UpdateGenerator::GetInstance().HandleEvents(&Events);
 		UpdateGenerator::GetInstance().Update();
 		UpdateGenerator::GetInstance().Render();
-		SDL_RenderPresent(gRenderer); 
+		SDL_RenderPresent(m_Renderer); 
 
 		//HACK: Lock FrameRate...... uhhhhh TODO: what am I doing here
 		auto dTime = DeltaTimer::GetDeltaTime();
@@ -91,15 +91,11 @@ void GameWindow::Main()
 
 void GameWindow::Free()
 {
-	//Deallocate surface
-	SDL_FreeSurface(gHelloWorld);
-	gHelloWorld = nullptr;
-
 	//Destroy window
-	SDL_DestroyWindow(gWindow);
-	gWindow = nullptr;
-	SDL_DestroyRenderer(gRenderer);
-	gRenderer = nullptr;
+	SDL_DestroyWindow(m_Window);
+	m_Window = nullptr;
+	SDL_DestroyRenderer(m_Renderer);
+	m_Renderer = nullptr;
 
 	//Exit subsystems //TODO: check if these should be in Free or in ~GameWindow, not sure what reiniting them does
 	SDL_Quit();

@@ -37,7 +37,7 @@ void PhysicsManager::ProcessCollisions()
 	{
 		for (auto b : m_Children)
 		{
-			if (&a != &b) continue;
+			if (a == b) continue;
 
 			SDL_Rect aCol, bCol, overlap;
 			if (CheckIntersection(a, b, &aCol, &bCol, &overlap))

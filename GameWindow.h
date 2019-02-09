@@ -18,10 +18,9 @@ private:
 	bool m_Exiting = false;
 	int m_Width, m_Height = 0;
 
-	SDL_Window* gWindow = nullptr;
-	SDL_Surface* gScreenSurface = nullptr;
-	SDL_Surface* gHelloWorld = nullptr;
-	SDL_Renderer* gRenderer = nullptr;
+	SDL_Window* m_Window = nullptr;
+	SDL_Surface* m_ScreenSurface = nullptr;
+	SDL_Renderer* m_Renderer = nullptr;
 
 	void Main();
 	void Free();
