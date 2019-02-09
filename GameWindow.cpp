@@ -5,6 +5,7 @@
 #include "EventHandlers.h"
 #include "Character.h"
 #include "Images.h"
+#include <algorithm>
 
 GameWindow::GameWindow(int Width, int Height)
 	: m_Width(Width)
@@ -79,11 +80,6 @@ void GameWindow::Main()
 		UpdateGenerator::GetInstance().Update();
 		UpdateGenerator::GetInstance().Render();
 		SDL_RenderPresent(m_Renderer); 
-
-		//HACK: Lock FrameRate...... uhhhhh TODO: what am I doing here
-		auto dTime = DeltaTimer::GetDeltaTime();
-		auto res = static_cast<int>(std::round(dTime / 1000.0)) % 20; //% 20.0;
-		SDL_Delay(20 - res); //TODO: consider consistent framerates? //60ish fps, I think vsync is on so it'll cap at 60 unless I don't want it to
 	}
 
 	Free();
