@@ -3,6 +3,15 @@
 #include <math.h>
 #include <algorithm>
 
+struct PhysicsManagerNamedPair
+{
+	PhysicsManagerNamedPair(std::string Name, PhysicsManager Manager) : name(Name), manager(Manager) {};
+
+	std::string name = "";
+	PhysicsManager manager;
+};
+
+
 PhysicsManager::PhysicsManager()
 	: IUpdatable()
 {
@@ -128,6 +137,28 @@ void PhysicsObject::SetOffset(Vector2f Offset)
 		x.x = static_cast<int>(std::round(m_Offset.x));
 		x.y = static_cast<int>(std::round(m_Offset.y));
 	}
+	if (m_ParentOffset != nullptr)
+		*m_ParentOffset = m_Offset;
 }
 
 void PhysicsObject::SetVelocity(Vector2f Velocity) { m_Velocity = Velocity; }
+
+PhysicsManagerContainer & PhysicsManagerContainer::GetInstance()
+{
+	static PhysicsManagerContainer instance;
+	return instance;
+}
+
+PhysicsManager* PhysicsManagerContainer::GetManger(std::string const Name)
+{
+	auto res = std::find_if(m_Children.begin(), m_Children.end(), [&](auto a) {return a.name == Name; });
+	if (res != m_Children.end()) return &res->manager;
+
+	m_Children.push_back(PhysicsManagerNamedPair(Name, PhysicsManager()));
+	return GetManger(Name);
+}
+
+PhysicsManagerContainer::~PhysicsManagerContainer()
+{
+	m_Children.clear();
+}

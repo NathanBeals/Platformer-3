@@ -17,7 +17,6 @@ public:
 	void RemoveFromUpdateGenerator();
 };
 
-
 //Funnels Update/Render calls from the main loop into its children
 //It's a singleton, the IUpdatables will latch onto it on their construction
 class UpdateGenerator

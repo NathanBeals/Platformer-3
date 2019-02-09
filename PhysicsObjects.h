@@ -3,6 +3,19 @@
 #include "Update.h"
 #include <vector>
 
+/*
+The PhysicsManagerContainer contains a list PhysicsManager, queryable by string name and created upon request.
+The PhysicsManager contains a number of physics objects that can collide with eachother, and is capable of calcualting collisions bettween them on the global update.
+The PhysicsObject contains a list of SDL_Rects which act as square colliders, weight, x/yoffsets, and x/yvelocities.
+Essentially it should work like this, 
+	An object that wishes to have collision will have a member of type PhysicsObject, and in its own update will query its draw offsets from the PhysicsObject.
+	On creation an object should set up it's PhysicsObject's bounds to ensure it has collision. //TODO: add helper funtions to do this from file, from sprite, from graphic, etc
+
+	When a new physics object is made it will try to add itself to a PhysicsManager by string name, The PhysicsManagerContainer will handle the request by creating a new PhysicsManager that can from then on
+	be referenced by calling GetManger(std::string Name). The Object will then start recieving physics updates from the PhysicsManager and be able to collide with anything stored in that manager (and other managers if it adds itself to multiple).
+	Every Update to a PhysicsObject will add velocities, change the x/yOffsets, and update the bounds by the new offsets.
+*/
+
 
 struct Vector2f;
 class PhysicsObject;
@@ -34,9 +47,30 @@ struct Vector2f
 	}
 };
 
+struct PhysicsManagerNamedPair;
+
+//Being able to request things anywhere is just too nice
+class PhysicsManagerContainer
+{
+public:
+	PhysicsManagerContainer(PhysicsManagerContainer const&) = delete;
+	void operator=(PhysicsManagerContainer const &) = delete;
+	static PhysicsManagerContainer& GetInstance();
+
+	PhysicsManager* GetManger(std::string const Name);
+
+private:
+	std::vector<PhysicsManagerNamedPair> m_Children = std::vector<PhysicsManagerNamedPair>();
+
+	PhysicsManagerContainer() { };
+	~PhysicsManagerContainer();
+
+};
+
 //Not a singleton like update, I'm thinking of having seperate layers of collidable objects
 class PhysicsManager : IUpdatable
 {
+public:
 	PhysicsManager();
 
 	void Update() override;
@@ -58,22 +92,19 @@ private:
 	bool CheckIntersection(PhysicsObject * A, PhysicsObject * B, SDL_Rect *ACollider, SDL_Rect *BCollider, SDL_Rect *Overlap);
 };
 
-//Image + Colliders + Weight
+//Colliders + Weight
 class PhysicsObject
 {
 public:
-	PhysicsObject()
+	//Offsets will be controlled by the PhysicsObject
+	PhysicsObject(std::vector<SDL_Rect> Colliders, float Weight, Vector2f *Offset)
+		: m_Colliders(Colliders)
+		, m_Weight(Weight)
+		, m_ParentOffset(Offset)
 	{
-		//Set Offsets after everything else
-		//TO be filled
-	}; //run setoffsets and such
+		SetOffset(*m_ParentOffset);
+	};
 
-	//TODO: consider just storing them as SDL_Rects in the first place
-	//Indstead of handling the offsets in update, just update them on request 
-	//Now hold on one godamn minute
-	//This does nothing
-	//Offsets are stored in the to be parent of this object (like the images), why am I doing this at all?
-	//rrrrrrrrrrrr
 	std::vector<SDL_Rect> const *GetRects() const;;
 
 	void Update();
@@ -83,39 +114,29 @@ public:
 	Vector2f GetVelocity() const;
 
 	void SetWeight(float Weight);
-	void SetOffset(Vector2f Offset);
+	void SetOffset(Vector2f Offset); //Not only updates local offset, also updates parent offset
 	void SetVelocity(Vector2f Velocity);
 
 private:
-	PhysicsManager *m_PManager = nullptr;
 	std::vector<SDL_Rect> m_Colliders = std::vector<SDL_Rect>();
 	float m_Weight = 0.0f;
+	Vector2f* m_ParentOffset = nullptr;
 	Vector2f m_Offset = Vector2f(0, 0);
 	Vector2f m_Velocity = Vector2f(0, 0);
 };
 
-namespace Collisions
+namespace Colliders
 {
-	//TODO: Collisions
+	std::vector<SDL_Rect> CreateSimpleBoxCollider(int x, int y, int w, int h)
+	{
+		auto result = std::vector<SDL_Rect>();
+		SDL_Rect collider;
+		collider.x = x;
+		collider.y = y;
+		collider.w = w;
+		collider.h = h;
+		result.push_back(collider);
 
-	/*
-	My Idea is this, objects are made up of a number of rect colliders,
-	these non-overlapping colliders are stored in a vector and associated with an image,
-	they are to be stored in xml simmilarily to how spritesheets are,
-	it's likely I'll have to rework spritesheets to accomodate them,
-	or I could auto generate the colliders based on pixel fills or something.
-	When a collision occurs, the lower weight object is moved out of the colliding area,
-	and forces are applied depending on the relative weights and velocities.
-
-	In the case of superheavy objects like terrain, if the force applied is trivial to the weight of an object it will be rounded out to having no effect.
-	In the case of objects of simmilar weight, the lighter object will be pushed out an the relative velocities of the two bodies will equalize based on the imparted force.
-	//If one 150lb person slams into another stationary 150lb man at 5m/s their resultant velocities will be 300lbs at 2.5m/s, that's my thoery atleast.
-	I'm still thinking about angles
-	If we simplify two colliding rectanges as two lines parallel to the rectangles longest axis we have two lines, if we shorten their ends by half the shortest axis, we will have two short lines representing the cores of the rectangles.
-	If we get the extents of the complex rectangles and where they intercept the second rectangle (say the bot left corner and a point halfway throught the bot) we can then find the shortest distance from the center to the rectangle cores.
-	Once we have the angle the lines make from their respective cores, we can apply that velocity to the whole object.
-
-	consider SDL_IntersectRect
-
-	*/
+		return result;
+	}
 }
