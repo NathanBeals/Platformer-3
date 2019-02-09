@@ -34,10 +34,10 @@ private:
 	std::vector<PhysicsObject*> m_Children = std::vector<PhysicsObject*>();
 
 	void ProcessCollisions();
-	void ProcessCollision(PhysicsObject * A, PhysicsObject * B, SDL_Rect *aCol, SDL_Rect *bCol, SDL_Rect * Overlap);
-	void ForceObjectOutOfWay(PhysicsObject *LighterObject, SDL_Rect *Collider, SDL_Rect *Overlap);
+	void ProcessCollision(PhysicsObject * A, PhysicsObject * B);
+	void ForceObjectOutOfWay(PhysicsObject * A, PhysicsObject* B);
 
-	bool CheckIntersection(PhysicsObject * A, PhysicsObject * B, SDL_Rect *ACollider, SDL_Rect *BCollider, SDL_Rect *Overlap);
+	bool CheckIntersection(PhysicsObject * A, PhysicsObject * B, SDL_Rect *Overlap);
 };
 
 //Colliders + Weight
@@ -45,10 +45,10 @@ class PhysicsObject
 {
 public:
 	//Offsets will be controlled by the PhysicsObject
-	PhysicsObject(PhysicsManager* PhysicsManager, std::vector<SDL_Rect> Colliders, float Weight, Vector2f *Offset);;
+	PhysicsObject(PhysicsManager* PhysicsManager, std::vector<SDL_Rect> Colliders, float Weight, Vector2f *Offset);
 	~PhysicsObject();
 
-	std::vector<SDL_Rect> const *GetRects() const;;
+	std::vector<SDL_Rect> const GetRects() const;
 
 	void Update();
 

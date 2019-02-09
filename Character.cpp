@@ -24,21 +24,21 @@ namespace
 Character::Character(SDL_Renderer* Renderer, std::string SpriteSheetPath, PhysicsManager *PhysicsManager)
 	: IEventHandler()
 	, m_SpriteSheet(Renderer, SpriteSheetPath)
-	, m_Physics(PhysicsManager, CreateSimpleBoxCollider(0,0,26,26), 100.0f, &m_Offset)
+	, m_Physics(PhysicsManager, CreateSimpleBoxCollider(0,0,26,26), 21.0f, &m_Offset) //TODO: becauser I center the spritesheet for some reason, the bounding box is messed up
 {
 
 }
 
 void Character::Update()
 {
-	//TODO: simplify
-	//HACK: simplify, also this upsets me
-	//Held down keys
 	auto v = m_Physics.GetVelocity();
+
+	//TODO: Friction
+	v.x /= 2;
+	v.y /= 2;
+
 	auto vAmount = 100.f;
 	auto keyStates = SDL_GetKeyboardState(NULL);
-	//if (!keyStates[SDL_SCANCODE_W] && !keyStates[SDL_SCANCODE_S] && !keyStates[SDL_SCANCODE_A] && !keyStates[SDL_SCANCODE_D])
-	//	m_ApplyFrictionThisFrame = true;
 	if (keyStates[SDL_SCANCODE_W])
 	{
 		v.y = -vAmount;

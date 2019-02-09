@@ -3,6 +3,33 @@
 #include <math.h>
 #include <algorithm>
 
+namespace
+{
+	struct IntesectingRects
+	{
+		bool bValid = false;
+		SDL_Rect a;
+		SDL_Rect b;
+		SDL_Rect overlap;
+	};
+
+	IntesectingRects GetIntersectingRects(PhysicsObject * A, PhysicsObject * B)
+	{
+		auto result = IntesectingRects();
+
+		for (auto a : A->GetRects())
+			for (auto b : B->GetRects())
+				if (SDL_IntersectRect(&a, &b, &result.overlap))
+				{
+					result.a = a;
+					result.b = b;
+					result.bValid = true;
+				}
+
+		return result;
+	}
+}
+
 PhysicsManager::PhysicsManager()
 	: IUpdatable()
 {
@@ -39,61 +66,62 @@ void PhysicsManager::ProcessCollisions()
 		{
 			if (a == b) continue;
 
-			SDL_Rect aCol, bCol, overlap;
-			if (CheckIntersection(a, b, &aCol, &bCol, &overlap))
-				ProcessCollision(a, b, &aCol, &bCol, &overlap);
+			IntesectingRects rects;
+			rects = GetIntersectingRects(a, b);
+			if (rects.bValid)
+				ProcessCollision(a, b);
 		}
 	}
 }
 
-bool PhysicsManager::CheckIntersection(PhysicsObject * A, PhysicsObject * B, SDL_Rect *ACollider, SDL_Rect *BCollider, SDL_Rect *Overlap)
+bool PhysicsManager::CheckIntersection(PhysicsObject * A, PhysicsObject * B, SDL_Rect *Overlap)
 {
-	for (auto a : *A->GetRects())
-		for (auto b : *B->GetRects())
+	for (auto a : A->GetRects())
+		for (auto b : B->GetRects())
 			if (SDL_IntersectRect(&a, &b, Overlap))
-			{
-				ACollider = &a;
-				BCollider = &b;
 				return true;
-			}
 
 	return false;
 }
 
-void PhysicsManager::ProcessCollision(PhysicsObject * A, PhysicsObject * B, SDL_Rect *aCol, SDL_Rect *bCol, SDL_Rect * Overlap)
+void PhysicsManager::ProcessCollision(PhysicsObject * A, PhysicsObject * B)
 {
 	//New Velocities
 	auto resXVector = (A->GetWeight() * A->GetVelocity().x + B->GetWeight() * B->GetVelocity().x) / (A->GetWeight() + B->GetWeight());
-	auto resYVector = (A->GetWeight() * A->GetVelocity().x + B->GetWeight() * B->GetVelocity().x) / (A->GetWeight() + B->GetWeight());
+	auto resYVector = (A->GetWeight() * A->GetVelocity().y + B->GetWeight() * B->GetVelocity().y) / (A->GetWeight() + B->GetWeight());
 	A->SetVelocity(Vector2f(resXVector, resYVector));
 	B->SetVelocity(Vector2f(resXVector, resYVector));
 
 	//Move out of way
-	auto lightObj = A->GetWeight() < B->GetWeight() ? A : B;
-	if (A->GetWeight() < B->GetWeight())
-		ForceObjectOutOfWay(A, aCol, Overlap);
-	else
-		ForceObjectOutOfWay(B, bCol, Overlap);
+	ForceObjectOutOfWay(A, B);
+
 }
 
 
 //Temporarily Modify velocity to push away rect centers until object is free
 //HACK: this code will just push away from the center until a good position is reached, that wont look right for long or tall rects 
-void PhysicsManager::ForceObjectOutOfWay(PhysicsObject * LighterObject, SDL_Rect *Collider, SDL_Rect * Overlap)
+void PhysicsManager::ForceObjectOutOfWay(PhysicsObject *A, PhysicsObject *B)
 {
-	Vector2f objectCenter = Vector2f(static_cast<float>(Collider->x + Collider->w / 2), static_cast<float>(Collider->y + Collider->h / 2));
-	Vector2f overlapCenter = Vector2f(static_cast<float>(Overlap->x + Overlap->w / 2), static_cast<float>(Overlap->y + Overlap->h / 2));
-	Vector2f escVector = objectCenter - overlapCenter;
-
-	if (objectCenter == overlapCenter) return; //Wait for resolution by vector movement
-
-	Vector2f oVector = LighterObject->GetVelocity();
-	while (SDL_HasIntersection(Collider, Overlap))
+	auto rects = GetIntersectingRects(A, B);
+	while (rects.bValid)
 	{
-		LighterObject->SetVelocity(escVector);
-		LighterObject->Update(); //Move with velocity, this should update the colliders and eventualy move it out of the way (or crash the game, prolly crash the game)
+		auto lighter = A->GetWeight() < B->GetWeight() ? A : B;
+		auto pushee = A->GetWeight() < B->GetWeight() ? rects.a : rects.b;
+		auto pusher = rects.overlap;
+
+		Vector2f objectCenter = Vector2f(static_cast<float>(pushee.x + pushee.w / 2), static_cast<float>(pushee.y + pushee.h / 2));
+		Vector2f overlapCenter = Vector2f(static_cast<float>(pusher.x + pusher.w / 2), static_cast<float>(pusher.y + pusher.h / 2));
+		Vector2f escVector = objectCenter - overlapCenter;
+
+		if (objectCenter == overlapCenter) return; //Wait for resolution by vector movement
+
+		Vector2f oVector = lighter->GetVelocity();
+		lighter->SetVelocity(escVector);
+		lighter->Update(); //Move with velocity, this should update the colliders and eventualy move it out of the way (or crash the game, prolly crash the game)
+		lighter->SetVelocity(oVector);
+
+		rects = GetIntersectingRects(A, B);
 	}
-	LighterObject->SetVelocity(oVector);
 }
 
 
@@ -114,9 +142,9 @@ PhysicsObject::~PhysicsObject()
 	m_PhysicsManager = nullptr;
 }
 
-std::vector<SDL_Rect> const * PhysicsObject::GetRects() const
+std::vector<SDL_Rect> const PhysicsObject::GetRects() const
 {
-	return &m_Colliders;
+	return m_Colliders;
 }
 
 void PhysicsObject::Update()
@@ -135,11 +163,12 @@ void PhysicsObject::SetWeight(float Weight) { m_Weight = Weight; }
 void PhysicsObject::SetOffset(Vector2f Offset)
 {
 	m_Offset = Offset;
-	for (auto x : m_Colliders)
+	for (auto &x : m_Colliders)
 	{
 		x.x = static_cast<int>(std::round(m_Offset.x));
 		x.y = static_cast<int>(std::round(m_Offset.y));
 	}
+
 	if (m_ParentOffset != nullptr)
 		*m_ParentOffset = m_Offset;
 }

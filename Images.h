@@ -63,7 +63,12 @@ namespace RenderImages
 		//TODO: think about interactions
 		void Update() override
 		{
-			//m_Physics.SetVelocity(Vector2f(0, 1));
+			////TODO: Friction
+			//auto v = m_Physics.GetVelocity();
+			//v.x /= 2;
+			//v.y /= 2;
+			//m_Physics.SetVelocity(v);
+
 			m_Image.SetOffset(m_Offset);
 		}
 
