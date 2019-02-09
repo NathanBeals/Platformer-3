@@ -1,3 +1,5 @@
+#pragma once
+
 #include "GameWindow.h"
 #include "Update.h"
 #include "EventHandlers.h"
@@ -45,14 +47,17 @@ bool GameWindow::Init()
 	return true;
 }
 
+//TODO: why did you make all of the local variables here capped?
+//TODO: undo the capping of all these local variables
 void GameWindow::Main()
 {
 	//Init the Delta Timer (attaches self to Updater and starts calculating time since last call)
 	DeltaTimer::GetInstance();
+	auto ForegroundPhysicsManager = PhysicsManager();
 	auto ExitHandler = EHandlers::ProgramExitHandler(&m_Exiting); //Handles Escape + top right X application exiting by modifying the bQuit bool
 
 	auto BackgroundImage = RenderImages::PNGImage(gRenderer, "./Images/base");
-	auto PlayerCharacter = Character(gRenderer, "./Images/SpriteSheets/MainCharacterSpriteSheet_56x56", "Foreground");
+	auto PlayerCharacter = Character(gRenderer, "./Images/SpriteSheets/MainCharacterSpriteSheet_56x56", &ForegroundPhysicsManager);
 
 	//Test class that just prints out deltatimes
 	auto test = UpdatableClassTest();

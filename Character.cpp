@@ -1,11 +1,30 @@
+#pragma once
+
 #include "Character.h"
 #include <math.h>
 #include <algorithm>
 
-Character::Character(SDL_Renderer* Renderer, std::string SpriteSheetPath, std::string PhysicsManager)
+//Helpers to construct the collider lists needed by PhysicObjects
+namespace 
+{
+	std::vector<SDL_Rect> CreateSimpleBoxCollider(int x, int y, int w, int h)
+	{
+		auto result = std::vector<SDL_Rect>();
+		SDL_Rect collider;
+		collider.x = x;
+		collider.y = y;
+		collider.w = w;
+		collider.h = h;
+		result.push_back(collider);
+
+		return result;
+	}
+}
+
+Character::Character(SDL_Renderer* Renderer, std::string SpriteSheetPath, PhysicsManager *PhysicsManager)
 	: IEventHandler()
 	, m_SpriteSheet(Renderer, SpriteSheetPath)
-	, m_Physics(PhysicsManager, Colliders::CreateSimpleBoxCollider(0,0,26,26), 100.0f, &m_Offset)
+	, m_Physics(PhysicsManager, CreateSimpleBoxCollider(0,0,26,26), 100.0f, &m_Offset)
 {
 
 }

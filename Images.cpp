@@ -17,8 +17,8 @@ RenderImages::PNGImage::~PNGImage()
 
 void RenderImages::PNGImage::SetDrawPosition(int x, int y)
 {
-	m_XOffset = static_cast<float>(x);
-	m_YOffset = static_cast<float>(y);
+	m_Offset.x = static_cast<float>(x);
+	m_Offset.y = static_cast<float>(y);
 }
 
 void RenderImages::PNGImage::Render()
@@ -26,8 +26,8 @@ void RenderImages::PNGImage::Render()
 	if (!m_Renderer || !m_Surface || !m_Texture) return;
 
 	auto desRect = SDL_Rect(m_Surface->clip_rect);
-	desRect.x = static_cast<int>(std::round(m_XOffset));
-	desRect.y = static_cast<int>(std::round(m_YOffset));
+	desRect.x = static_cast<int>(std::round(m_Offset.x));
+	desRect.y = static_cast<int>(std::round(m_Offset.y));
 
 	SDL_RenderCopy(m_Renderer, m_Texture, &m_Surface->clip_rect, &desRect);
 }

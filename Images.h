@@ -1,7 +1,9 @@
 #pragma once
+
 #include <SDL.h>
 #include <SDL_image.h>
 #include "Update.h"
+#include "PhysicsVectors.h"
 
 namespace RenderImages
 {
@@ -22,7 +24,7 @@ namespace RenderImages
 		SDL_Texture *m_Texture = nullptr;
 
 		std::string m_FilePath;
-		float m_XOffset, m_YOffset = 0;
+		Vector2f m_Offset = Vector2f(0, 0);
 
 		void LoadImage();
 	};

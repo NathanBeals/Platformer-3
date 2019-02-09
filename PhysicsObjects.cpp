@@ -3,18 +3,6 @@
 #include <math.h>
 #include <algorithm>
 
-struct PhysicsManagerNamedPair
-{
-	PhysicsManagerNamedPair(std::string Name) : name(Name) 
-	{
-		manager = PhysicsManager();
-	};
-
-	std::string name = "";
-	PhysicsManager manager;
-};
-
-
 PhysicsManager::PhysicsManager()
 	: IUpdatable()
 {
@@ -23,6 +11,8 @@ PhysicsManager::PhysicsManager()
 
 void PhysicsManager::Update()
 {
+	for (auto x : m_Children)
+		x->Update();
 	ProcessCollisions();
 }
 
@@ -40,18 +30,14 @@ void PhysicsManager::RemoveChild(PhysicsObject * Child)
 		m_Children.erase(res);
 }
 
-//Sees if any physics object collides with any other physics obejct managed by this container
-//Applies forced movement (to stop overlapping), new velocities, and tells the colliders to update their offsets...
-//TODO: think more on these comments
-//Current method won't handle multiple collisions gracefully, consider
-
+//TODO: Current method won't handle multiple collisions gracefully, consider
 void PhysicsManager::ProcessCollisions()
 {
 	for (auto a : m_Children)
 	{
 		for (auto b : m_Children)
 		{
-			if (&a != &b) continue;//So objects don't try to collide with themselves into eternity
+			if (&a != &b) continue;
 
 			SDL_Rect aCol, bCol, overlap;
 			if (CheckIntersection(a, b, &aCol, &bCol, &overlap))
@@ -59,8 +45,6 @@ void PhysicsManager::ProcessCollisions()
 		}
 	}
 }
-
-//TODO: look up pointer to const syntax, I haven't been consting nearly as much as I should be. I should make some kind of big jira ticket or something for this if I ever make a ticket system (ADD CONSTYNESS)
 
 bool PhysicsManager::CheckIntersection(PhysicsObject * A, PhysicsObject * B, SDL_Rect *ACollider, SDL_Rect *BCollider, SDL_Rect *Overlap)
 {
@@ -94,7 +78,7 @@ void PhysicsManager::ProcessCollision(PhysicsObject * A, PhysicsObject * B, SDL_
 
 
 //Temporarily Modify velocity to push away rect centers until object is free
-//TODO: work here again, this is using point not core so long rectangular colliders will push harder towards the larger axis
+//HACK: this code will just push away from the center until a good position is reached, that wont look right for long or tall rects 
 void PhysicsManager::ForceObjectOutOfWay(PhysicsObject * LighterObject, SDL_Rect *Collider, SDL_Rect * Overlap)
 {
 	Vector2f objectCenter = Vector2f(static_cast<float>(Collider->x + Collider->w / 2), static_cast<float>(Collider->y + Collider->h / 2));
@@ -109,9 +93,25 @@ void PhysicsManager::ForceObjectOutOfWay(PhysicsObject * LighterObject, SDL_Rect
 		LighterObject->SetVelocity(escVector);
 		LighterObject->Update(); //Move with velocity, this should update the colliders and eventualy move it out of the way (or crash the game, prolly crash the game)
 	}
-
-	//Restore original velocity
 	LighterObject->SetVelocity(oVector);
+}
+
+
+//Offsets will be controlled by the PhysicsObject
+
+PhysicsObject::PhysicsObject(PhysicsManager * PhysicsManager, std::vector<SDL_Rect> Colliders, float Weight, Vector2f * Offset)
+	: m_PhysicsManager(PhysicsManager)
+	, m_Colliders(Colliders)
+	, m_Weight(Weight)
+	, m_ParentOffset(Offset)
+{
+	SetOffset(*m_ParentOffset);
+	if (PhysicsManager) PhysicsManager->AddChild(this);
+}
+
+PhysicsObject::~PhysicsObject()
+{
+	m_PhysicsManager = nullptr;
 }
 
 std::vector<SDL_Rect> const * PhysicsObject::GetRects() const
@@ -121,7 +121,7 @@ std::vector<SDL_Rect> const * PhysicsObject::GetRects() const
 
 void PhysicsObject::Update()
 {
-	SetOffset(Vector2f(m_Offset.x + m_Velocity.x, m_Offset.y + m_Velocity.y));
+	SetOffset(Vector2f(m_Offset.x + m_Velocity.x * DeltaTimer::GetDeltaTime() / 1000, m_Offset.y + m_Velocity.y * DeltaTimer::GetDeltaTime() / 1000));
 }
 
 float PhysicsObject::GetWeight() const { return m_Weight; }
@@ -145,25 +145,3 @@ void PhysicsObject::SetOffset(Vector2f Offset)
 }
 
 void PhysicsObject::SetVelocity(Vector2f Velocity) { m_Velocity = Velocity; }
-
-PhysicsManagerContainer & PhysicsManagerContainer::GetInstance()
-{
-	static PhysicsManagerContainer instance;
-	return instance;
-}
-
-PhysicsManager* PhysicsManagerContainer::GetManger(std::string const Name)
-{
-	//If the name exists
-	auto res = std::find_if(m_Children.begin(), m_Children.end(), [&](auto a) {return a.name == Name; });
-	if (res != m_Children.end()) return &res->manager;
-
-	//If the name does not exist, make a new manager and return that
-	m_Children.push_back(PhysicsManagerNamedPair(Name));
-	return &m_Children.back().manager;
-}
-
-PhysicsManagerContainer::~PhysicsManagerContainer()
-{
-	m_Children.clear();
-}

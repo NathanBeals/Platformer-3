@@ -13,7 +13,7 @@
 class Character : public IEventHandler //TODO: I swear this name is used by something and it will come back to haunt me
 {
 public: 
-	Character(SDL_Renderer* Renderer, std::string SpriteSheetPath, std::string PhysicsManager);
+	Character(SDL_Renderer* Renderer, std::string SpriteSheetPath, PhysicsManager *PhysicsManager);
 	void Update() override;
 	void Render() override;
 	void HandleEvents(std::vector<SDL_Event> * Events) override;
