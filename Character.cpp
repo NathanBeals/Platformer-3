@@ -29,31 +29,27 @@ Character::Character(SDL_Renderer* Renderer, std::string SpriteSheetPath, Physic
 
 }
 
+//HACK: this whole section is a mess from testing, move friction to physics objects, and split animations from input
 void Character::Update()
 {
 	auto v = m_Physics.GetVelocity();
 
-	//TODO: Friction
-	v.x /= 2;
-	v.y /= 2;
+	//TODO: Rework after expanding the spritesheet, and adding more physics objects (like the floor)
+	//TODO: Friction, move to collision area
+	v.x /= 1.1;
+	v.y /= 1.1;
+	if (v.y > 0 && v.y < 1) v.y = 0;
+	if (v.x > 0 && v.x < 1) v.x = 0;
 
-	auto vAmount = 100.f;
+	auto vAmount = 100.f; //TODO: make class member
 	auto keyStates = SDL_GetKeyboardState(NULL);
 	if (keyStates[SDL_SCANCODE_W])
 	{
 		v.y = -vAmount;
-		if (v.x > 0)
-			m_SpriteSheet.RequestAnimation("JumpR");
-		else
-			m_SpriteSheet.RequestAnimation("JumpL");
 	}
 	if (keyStates[SDL_SCANCODE_S])
 	{
 		v.y = vAmount;
-		if (v.x > 0)
-			m_SpriteSheet.RequestAnimation("FallR");
-		else
-			m_SpriteSheet.RequestAnimation("FallL");
 	}
 	if (keyStates[SDL_SCANCODE_A])
 	{
@@ -65,6 +61,30 @@ void Character::Update()
 		v.x = vAmount;
 		m_SpriteSheet.RequestAnimation("Right");
 	}
+
+	if (v.y < 0)
+	{
+		if (v.x > 0)
+			m_SpriteSheet.RequestAnimation("JumpR");
+		else
+			m_SpriteSheet.RequestAnimation("JumpL");
+	}
+	else if (v.y > 0)
+	{
+		if (v.x > 0)
+			m_SpriteSheet.RequestAnimation("FallR");
+		else
+			m_SpriteSheet.RequestAnimation("FallL");
+	}
+
+	if (v.x == 0 && v.y == 0)
+	{
+		//TODO: LdleL, IdleR
+		//m_SpriteSheet.getcurrentanimationname() == "" //enum of right animations??
+		m_SpriteSheet.RequestAnimation("IdleR");
+	}
+
+	//v.y += 9.8f; //TODO: either move to the physicsobject or make a class member;
 
 	m_Physics.SetVelocity(v);
 	m_SpriteSheet.Update();

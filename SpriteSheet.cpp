@@ -49,10 +49,10 @@ void SpriteSheet::RenderSprite(int X, int Y)
 
 	auto spriteRect = m_CurrentAnimation->GetSprite(m_XFactor, m_YFactor);
 
-	//Center it
+	//Don't center it
 	auto desRect = SDL_Rect();
-	desRect.x = X - m_XFactor / 2;
-	desRect.y = Y - m_YFactor / 2;
+	desRect.x = X;// -m_XFactor / 2;
+	desRect.y = Y;//- m_YFactor / 2;
 	desRect.h = m_XFactor;
 	desRect.w = m_YFactor;
 
