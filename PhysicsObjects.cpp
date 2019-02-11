@@ -40,7 +40,10 @@ void PhysicsManager::Update()
 {
 	for (auto x : m_Children)
 		x->Update();
+
 	ProcessCollisions();
+	//ProcessGraivity();
+	//ProcessFriction();
 }
 
 void PhysicsManager::AddChild(PhysicsObject * Child)
@@ -149,6 +152,10 @@ std::vector<SDL_Rect> const PhysicsObject::GetRects() const
 
 void PhysicsObject::Update()
 {
+	//crap, is friction apart of collisions?
+	//Friction()
+	//{}
+
 	SetOffset(Vector2f(m_Offset.x + m_Velocity.x * DeltaTimer::GetDeltaTime() / 1000, m_Offset.y + m_Velocity.y * DeltaTimer::GetDeltaTime() / 1000));
 }
 
