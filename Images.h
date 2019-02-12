@@ -23,6 +23,7 @@ namespace
 	}
 }
 
+//TODO: spritesheet derives from PNGImage/SimpleImageObject?
 namespace RenderImages
 {
 	class PNGImage : public IUpdatable
@@ -52,10 +53,10 @@ namespace RenderImages
 	class SimpleImageObject : IUpdatable
 	{
 	public:
-		SimpleImageObject(SDL_Renderer *Renderer, std::string ImageFilePath, PhysicsManager* PhysicsManager)
+		SimpleImageObject(SDL_Renderer *Renderer, std::string ImageFilePath, PhysicsManager* PhysicsManager, std::vector<SDL_Rect> Colliders = std::vector<SDL_Rect>(), float Weight = 10.0f)
 			: IUpdatable()
 			, m_Image(Renderer, ImageFilePath)
-			, m_Physics(PhysicsManager, CreateSimpleBoxCollider(0, 0, 50, 50), 10.0f, &m_Offset)
+			, m_Physics(PhysicsManager, Colliders, Weight, &m_Offset)
 		{
 
 		}
@@ -63,16 +64,12 @@ namespace RenderImages
 		//TODO: think about interactions
 		void Update() override
 		{
-			////TODO: Friction
-			//auto v = m_Physics.GetVelocity();
-			//v.x /= 2;
-			//v.y /= 2;
-			//m_Physics.SetVelocity(v);
-
-			m_Image.SetOffset(m_Offset);
+			SetOffset(m_Offset);
 		}
 
-	public:
+		void SetOffset(Vector2f Offset) { m_Image.SetOffset(Offset); m_Physics.SetOffset(Offset); }
+
+	private:
 		PNGImage m_Image;
 		Vector2f m_Offset = Vector2f(50, 50);
 		PhysicsObject m_Physics;

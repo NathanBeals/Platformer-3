@@ -48,35 +48,40 @@ bool GameWindow::Init()
 	return true;
 }
 
-//TODO: why did you make all of the local variables here capped?
-//TODO: undo the capping of all these local variables
 void GameWindow::Main()
 {
 	//Init the Delta Timer (attaches self to Updater and starts calculating time since last call)
 	DeltaTimer::GetInstance();
-	auto ForegroundPhysicsManager = PhysicsManager();
-	auto ExitHandler = EHandlers::ProgramExitHandler(&m_Exiting); //Handles Escape + top right X application exiting by modifying the bQuit bool
+	auto foregroundPhysicsManager = PhysicsManager();
+	auto exitHandler = EHandlers::ProgramExitHandler(&m_Exiting); //Handles Escape + top right X application exiting by modifying the bQuit bool
 
-	auto BackgroundImage = RenderImages::PNGImage(m_Renderer, "./Images/base");
-	auto PlayerCharacter = Character(m_Renderer, "./Images/SpriteSheets/MainCharacterSpriteSheet_56x56", &ForegroundPhysicsManager);
-	auto RandomCube = RenderImages::SimpleImageObject(m_Renderer, "./Images/test50", &ForegroundPhysicsManager);
+	auto backgroundImage = RenderImages::PNGImage(m_Renderer, "./Images/base");
+	auto playerCharacter = Character(m_Renderer, "./Images/SpriteSheets/MainCharacterSpriteSheet_56x56", &foregroundPhysicsManager, CreateSimpleBoxCollider(0,0, 28, 56), 10.0f);
+	playerCharacter.SetOffset(Vector2f(0, 50));
+	auto randomCube1 = RenderImages::SimpleImageObject(m_Renderer, "./Images/floor", &foregroundPhysicsManager, CreateSimpleBoxCollider(0, 0, 400, 50), 5000);
+	randomCube1.SetOffset(Vector2f(0, 500));
+	auto randomCube2 = RenderImages::SimpleImageObject(m_Renderer, "./Images/test50", &foregroundPhysicsManager, CreateSimpleBoxCollider(0, 0, 50, 50), 100);
+	randomCube2.SetOffset(Vector2f(100, 100));
+	auto randomCube3 = RenderImages::SimpleImageObject(m_Renderer, "./Images/test50", &foregroundPhysicsManager, CreateSimpleBoxCollider(0, 0, 50, 50), 10);
+	randomCube3.SetOffset(Vector2f(200, 200));
+
 	//Test class that just prints out deltatimes
 	auto test = UpdatableClassTest();
 
-	auto Events = std::vector<SDL_Event>();
+	auto events = std::vector<SDL_Event>();
 	while (true)
 	{
 		//Told to Exit
 		if (m_Exiting) break;
 
 		//Handle Events (SDL Input)
-		Events.clear();
+		events.clear();
 		SDL_Event e;
 		while (SDL_PollEvent(&e) != 0)
-			Events.push_back(SDL_Event(e));
+			events.push_back(SDL_Event(e));
 
 		//Generate Updates
-		UpdateGenerator::GetInstance().HandleEvents(&Events);
+		UpdateGenerator::GetInstance().HandleEvents(&events);
 		UpdateGenerator::GetInstance().Update();
 		UpdateGenerator::GetInstance().Render();
 		SDL_RenderPresent(m_Renderer); 

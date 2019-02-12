@@ -21,10 +21,10 @@ namespace
 	}
 }
 
-Character::Character(SDL_Renderer* Renderer, std::string SpriteSheetPath, PhysicsManager *PhysicsManager)
+Character::Character(SDL_Renderer* Renderer, std::string SpriteSheetPath, PhysicsManager *PhysicsManager, std::vector<SDL_Rect> Colliders = std::vector<SDL_Rect>(), float Weight = 10.0f)
 	: IEventHandler()
 	, m_SpriteSheet(Renderer, SpriteSheetPath)
-	, m_Physics(PhysicsManager, CreateSimpleBoxCollider(0,0,26,26), 21.0f, &m_Offset) //TODO: becauser I center the spritesheet for some reason, the bounding box is messed up
+	, m_Physics(PhysicsManager, Colliders, Weight, &m_Offset) 
 {
 
 }

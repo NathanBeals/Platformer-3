@@ -13,11 +13,17 @@
 class Character : public IEventHandler //TODO: I swear this name is used by something and it will come back to haunt me
 {
 public: 
-	Character(SDL_Renderer* Renderer, std::string SpriteSheetPath, PhysicsManager *PhysicsManager);
+	Character(SDL_Renderer* Renderer, std::string SpriteSheetPath, PhysicsManager *PhysicsManager, std::vector<SDL_Rect> Colliders, float Weight);
 	void Update() override;
 	void Render() override;
 	void HandleEvents(std::vector<SDL_Event> * Events) override;
 	void HandleEvent(SDL_Event * Event) override;
+
+	void SetOffset(Vector2f Location)
+	{
+		m_Offset = Location;
+		m_Physics.SetOffset(Location);
+	}
 
 private:
 	SpriteSheet m_SpriteSheet;

@@ -19,6 +19,8 @@ struct Vector2f;
 class PhysicsObject;
 class PhysicsManager;
 
+//Object interaction
+
 //Handles interactions between physics objects
 class PhysicsManager : IUpdatable
 {
