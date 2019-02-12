@@ -56,9 +56,10 @@ void GameWindow::Main()
 	auto exitHandler = EHandlers::ProgramExitHandler(&m_Exiting); //Handles Escape + top right X application exiting by modifying the bQuit bool
 
 	auto backgroundImage = RenderImages::PNGImage(m_Renderer, "./Images/base");
-	auto playerCharacter = Character(m_Renderer, "./Images/SpriteSheets/MainCharacterSpriteSheet_56x56", &foregroundPhysicsManager, CreateSimpleBoxCollider(0,0, 28, 56), 10.0f);
+	auto playerCharacter = Character(m_Renderer, "./Images/SpriteSheets/MainCharacterSpriteSheet_56x56", &foregroundPhysicsManager, CreateSimpleBoxCollider(-50,0, 56, 56), 50); //TODO: offsets don't work, you should know why
 	playerCharacter.SetOffset(Vector2f(0, 50));
 	auto randomCube1 = RenderImages::SimpleImageObject(m_Renderer, "./Images/floor", &foregroundPhysicsManager, CreateSimpleBoxCollider(0, 0, 400, 50), 5000);
+	randomCube1.SetKinematic(true);
 	randomCube1.SetOffset(Vector2f(0, 500));
 	auto randomCube2 = RenderImages::SimpleImageObject(m_Renderer, "./Images/test50", &foregroundPhysicsManager, CreateSimpleBoxCollider(0, 0, 50, 50), 100);
 	randomCube2.SetOffset(Vector2f(100, 100));

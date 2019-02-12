@@ -35,11 +35,11 @@ void Character::Update()
 	auto v = m_Physics.GetVelocity();
 
 	//TODO: Rework after expanding the spritesheet, and adding more physics objects (like the floor)
-	//TODO: Friction, move to collision area
-	v.x /= 1.1;
-	v.y /= 1.1;
-	if (v.y > 0 && v.y < 1) v.y = 0;
-	if (v.x > 0 && v.x < 1) v.x = 0;
+	////TODO: Friction, move to collision area
+	//v.x /= 1.1;
+	//v.y /= 1.1;
+	//if (v.y > 0 && v.y < 1) v.y = 0;
+	//if (v.x > 0 && v.x < 1) v.x = 0;
 
 	auto vAmount = 100.f; //TODO: make class member
 	auto keyStates = SDL_GetKeyboardState(NULL);
@@ -109,4 +109,10 @@ void Character::HandleEvents(std::vector<SDL_Event>* Events)
 void Character::HandleEvent(SDL_Event * Event)
 {
 
+}
+
+void Character::SetOffset(Vector2f Location)
+{
+	m_Offset = Location;
+	m_Physics.SetOffset(Location);
 }

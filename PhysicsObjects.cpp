@@ -97,7 +97,6 @@ void PhysicsManager::ProcessCollision(PhysicsObject * A, PhysicsObject * B)
 
 	//Move out of way
 	ForceObjectOutOfWay(A, B);
-
 }
 
 
@@ -152,10 +151,7 @@ std::vector<SDL_Rect> const PhysicsObject::GetRects() const
 
 void PhysicsObject::Update()
 {
-	//crap, is friction apart of collisions?
-	//Friction()
-	//{}
-
+	ApplyForces();
 	SetOffset(Vector2f(m_Offset.x + m_Velocity.x * DeltaTimer::GetDeltaTime() / 1000, m_Offset.y + m_Velocity.y * DeltaTimer::GetDeltaTime() / 1000));
 }
 

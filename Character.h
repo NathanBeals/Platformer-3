@@ -19,11 +19,7 @@ public:
 	void HandleEvents(std::vector<SDL_Event> * Events) override;
 	void HandleEvent(SDL_Event * Event) override;
 
-	void SetOffset(Vector2f Location)
-	{
-		m_Offset = Location;
-		m_Physics.SetOffset(Location);
-	}
+	void SetOffset(Vector2f Location);
 
 private:
 	SpriteSheet m_SpriteSheet;

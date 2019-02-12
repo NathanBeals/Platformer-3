@@ -4,6 +4,7 @@
 #include "PhysicsVectors.h"
 
 #include <vector>
+#include <algorithm>
 
 /*
 The PhysicsManager contains a number of physics objects that can collide with eachother, and is capable of calcualting collisions bettween them on the global update.
@@ -59,14 +60,81 @@ public:
 	Vector2f GetVelocity() const;
 
 	void SetWeight(float Weight);
-	void SetOffset(Vector2f Offset); //Not only updates local offset, also updates parent offset
+	void SetOffset(Vector2f Offset);
 	void SetVelocity(Vector2f Velocity);
+	
+	virtual void ApplyFriction()
+	{
+		auto v = GetVelocity();
+		ApplyVelocityFloor();
+
+		//Very simple air resistance, essentially just
+		auto adjFriction = (m_VAir / m_Weight) * DeltaTimer::GetDeltaTime() / 1000;
+
+		if (abs(v.x) - abs(adjFriction.x) <= 0) 
+			v.x = 0;
+		else
+			!std::signbit(v.x) ? v.x -= adjFriction.x : v.x += adjFriction.x; //If positive
+
+		if (abs(v.y) - abs(adjFriction.y) <= 0) 
+			v.y = 0;
+		else
+			!std::signbit(v.y) ? v.y -= adjFriction.y : v.y += adjFriction.y; //If positive
+
+		m_Velocity = v;
+	}
+
+	void ApplyGravity()
+	{
+		//Ignore overly large inputs
+		if ((DeltaTimer::GetDeltaTime() / 1000) > 100) return;
+		auto grav = m_VGravity * (DeltaTimer::GetDeltaTime() / 1000);
+		m_Velocity += grav;
+	}
+
+	virtual void ApplyForces()
+	{
+		ApplyVelocityFloor();
+		ClampVelocity();
+		if (m_Kinematic) return;
+
+		ApplyGravity();
+		ApplyFriction();
+		ClampVelocity();
+	}
+
+	void SetKinematic(bool Kinematic)
+	{
+		m_Kinematic = Kinematic;
+	}
+
+	//If a velocity is increadibly low the force imparted by a collision was insignifigant
+	void ApplyVelocityFloor()
+	{
+		if (abs(m_Velocity.x) < m_VMinimumn.x) m_Velocity.x = 0;
+		if (abs(m_Velocity.y) < m_VMinimumn.y) m_Velocity.y = 0;
+	}
+
+	void ClampVelocity()
+	{ 
+		if (abs(m_Velocity.x) > m_MaxVelocity.x)
+			!signbit(m_Velocity.x) ? m_Velocity.x = m_MaxVelocity.x : m_Velocity.x = -m_MaxVelocity.x;
+		if (abs(m_Velocity.y) > m_MaxVelocity.y)
+			!signbit(m_Velocity.y) ? m_Velocity.y = m_MaxVelocity.y : m_Velocity.y = -m_MaxVelocity.y;
+	}
 
 private:
 	PhysicsManager* m_PhysicsManager = nullptr;
 	std::vector<SDL_Rect> m_Colliders = std::vector<SDL_Rect>();
 	float m_Weight = 0.0f;
+	bool m_Kinematic = false;
 	Vector2f* m_ParentOffset = nullptr;
 	Vector2f m_Offset = Vector2f(0, 0);
 	Vector2f m_Velocity = Vector2f(0, 0);
+	
+	//Resistance Forces
+	Vector2f m_VMinimumn = Vector2f(10, 10);
+	Vector2f m_VAir = Vector2f(1000, 1000); //Reconsider air friction, always positive
+	Vector2f m_VGravity = Vector2f(0, 30.0f);
+	Vector2f m_MaxVelocity = Vector2f(200, 200);
 };

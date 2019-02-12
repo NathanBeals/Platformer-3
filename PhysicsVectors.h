@@ -17,9 +17,22 @@ struct Vector2f
 		return Vector2f(x * Magnitude, y * Magnitude);
 	}
 
+	Vector2f operator/(float Magnitude)
+	{
+		return Vector2f(x / Magnitude, y / Magnitude);
+	}
+
 	Vector2f operator-(Vector2f vec)
 	{
 		return Vector2f(x - vec.x, y - vec.y);
+	}
+
+	Vector2f & operator+=(Vector2f vec)
+	{
+		x += vec.x;
+		y += vec.y;
+
+		return *this;
 	}
 
 	bool operator ==(Vector2f vec)
