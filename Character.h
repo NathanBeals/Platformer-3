@@ -42,11 +42,11 @@ private:
 	int m_JumpCounter = 0;
 	bool m_Jumping = false;
 	bool m_Falling = false;
-	float m_JumpForce = -400;
+	float m_JumpForce = -980; //Responds to keydown not update so independent of delta time
 	bool m_HMoving = false;
 	HDirection m_PrevHDirection = Stopped;
 	HDirection m_CurHDirection = Stopped;
-	float m_HMovementForce = 3000;
+	float m_HMovementForce = 1000;
 
 	bool m_Floored = true; //Touching Floor, TODO: figure a way to update this signifigantly
 };

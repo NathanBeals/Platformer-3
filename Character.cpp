@@ -35,10 +35,10 @@ void Character::Update()
 	if (m_HMoving)
 	{
 		if (m_CurHDirection == Right)
-			m_Physics.ApplyForce(m_HMovementForce * DeltaTimer::GetDeltaTime() / 1000, 0);
+			m_Physics.ApplyForce(m_HMovementForce * m_Physics.GetWeight() * DeltaTimer::GetDeltaTime() / 1000, 0);
 
 		if (m_CurHDirection == Left)
-			m_Physics.ApplyForce(-m_HMovementForce * DeltaTimer::GetDeltaTime() / 1000, 0);
+			m_Physics.ApplyForce(-m_HMovementForce * m_Physics.GetWeight() * DeltaTimer::GetDeltaTime() / 1000, 0);
 	}
 
 	//Animation block?
@@ -57,12 +57,12 @@ void Character::Update()
 		m_CurHDirection == Right ? m_SpriteSheet.RequestAnimation("LandR") : m_SpriteSheet.RequestAnimation("LandL");
 	}
 
-	else if (m_Physics.GetVelocity().x == 0 && !m_Falling && !m_Jumping) //H
+	else if (abs(m_Physics.GetVelocity().x) <= 20 && !m_Falling && !m_Jumping) //TODO: arbitrary value
 	{
 		m_CurHDirection == Right ? m_SpriteSheet.RequestAnimation("IdleR") : m_SpriteSheet.RequestAnimation("IdleL");
 	}
 
-	else if (m_Physics.GetVelocity().x != 0 && !m_Falling && !m_Jumping)
+	else if (abs(m_Physics.GetVelocity().x) > 20 && !m_Falling && !m_Jumping)
 	{
 		m_CurHDirection == Right ? m_SpriteSheet.RequestAnimation("Right") : m_SpriteSheet.RequestAnimation("Left");
 	}

@@ -218,7 +218,7 @@ void PhysicsObject::ApplyFriction()
 void PhysicsObject::ApplyGravity()
 {
 	//Ignore overly large inputs
-	if ((DeltaTimer::GetDeltaTime() / 1000) > 1) return;
+	if ((DeltaTimer::GetDeltaTime() / 1000) > 20) return;
 
 	//Add Gravitational force, more for heavy things? //HACK:
 	ApplyForce(0, m_Weight * m_VGravity * (DeltaTimer::GetDeltaTime() / 1000));
@@ -230,7 +230,7 @@ void PhysicsObject::ApplyForces()
 	{
 		ApplyGravity();
 		ApplyFriction();
-		printf("Velocity: %d,%d\n", GetVelocity().x, GetVelocity().y); //TODO: remove
+		printf("Velocity: %d,%d\n", GetVelocity().x, GetVelocity().y);
 	}
 
 	if (m_Static)

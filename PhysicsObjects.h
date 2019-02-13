@@ -93,6 +93,6 @@ private:
 	Vector2f m_Velocity = Vector2f(0, 0);
 	
 	//Resistance Forces
-	float m_VGravity = 400;
+	float m_VGravity = 1960;
 	float m_AirFriction = 2;
 };
