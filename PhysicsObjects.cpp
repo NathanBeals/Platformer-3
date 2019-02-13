@@ -87,13 +87,19 @@ bool PhysicsManager::CheckIntersection(PhysicsObject * A, PhysicsObject * B, SDL
 	return false;
 }
 
+//HACK: this formula is not correct
+//If I make contact with perpendicular velocity, (to a superheavy object), my perpendicular velocity is completely negated
 void PhysicsManager::ProcessCollision(PhysicsObject * A, PhysicsObject * B)
 {
 	//New Velocities
 	auto resXVector = (A->GetWeight() * A->GetVelocity().x + B->GetWeight() * B->GetVelocity().x) / (A->GetWeight() + B->GetWeight());
 	auto resYVector = (A->GetWeight() * A->GetVelocity().y + B->GetWeight() * B->GetVelocity().y) / (A->GetWeight() + B->GetWeight());
+	
+	//Instead of set velocity try adding force
 	A->SetVelocity(Vector2f(resXVector, resYVector));
 	B->SetVelocity(Vector2f(resXVector, resYVector));
+	//A->SetVelocity(Vector2f(A->GetVelocity().x, resYVector));
+	//B->SetVelocity(Vector2f(B->GetVelocity().x, resYVector));
 
 	//Move out of way
 	ForceObjectOutOfWay(A, B);
