@@ -177,3 +177,38 @@ void PhysicsObject::SetOffset(Vector2f Offset)
 }
 
 void PhysicsObject::SetVelocity(Vector2f Velocity) { m_Velocity = Velocity; }
+
+//TODO: I've given up for now, just use the super simple one
+void PhysicsObject::ApplyFriction()
+{
+	m_Velocity.x /= 1 + (.1 * DeltaTimer::GetDeltaTime() / 1000);
+	m_Velocity.y /= 1 + (.1 * DeltaTimer::GetDeltaTime() / 1000);
+}
+
+void PhysicsObject::ApplyGravity()
+{
+	//Ignore overly large inputs
+	if ((DeltaTimer::GetDeltaTime() / 1000) > 1) return;
+
+	//Add Gravitational force, more for heavy things? //HACK:
+	ApplyForce(0, m_Weight * m_VGravity * (DeltaTimer::GetDeltaTime() / 1000));
+}
+
+void PhysicsObject::ApplyForces()
+{
+	if (!m_Kinematic)
+	{
+		ApplyGravity();
+		ApplyFriction();
+	}
+
+	if (m_Static)
+		SetVelocity(0, 0);
+
+	FloorVelocity();
+}
+
+void PhysicsObject::ApplyForce(float x, float y)
+{
+	m_Velocity += Vector2f(x / m_Weight, y / m_Weight);
+}

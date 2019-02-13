@@ -5,7 +5,7 @@
 #include <algorithm>
 
 //Helpers to construct the collider lists needed by PhysicObjects
-namespace 
+namespace
 {
 	std::vector<SDL_Rect> CreateSimpleBoxCollider(int x, int y, int w, int h)
 	{
@@ -24,76 +24,50 @@ namespace
 Character::Character(SDL_Renderer* Renderer, std::string SpriteSheetPath, PhysicsManager *PhysicsManager, std::vector<SDL_Rect> Colliders = std::vector<SDL_Rect>(), float Weight = 10.0f)
 	: IEventHandler()
 	, m_SpriteSheet(Renderer, SpriteSheetPath)
-	, m_Physics(PhysicsManager, Colliders, Weight, &m_Offset) 
+	, m_Physics(PhysicsManager, Colliders, Weight, &m_Offset)
 {
 
 }
 
-//HACK: this whole section is a mess from testing, move friction to physics objects, and split animations from input
+//TODO: rework completely
 void Character::Update()
 {
-	auto v = m_Physics.GetVelocity();
+	if (m_HMoving)
+	{
+		if (m_CurHDirection == Right)
+			m_Physics.ApplyForce(m_HMovementForce * DeltaTimer::GetDeltaTime() / 1000, 0);
 
-	//TODO: Rework after expanding the spritesheet, and adding more physics objects (like the floor)
-	////TODO: Friction, move to collision area
-	//v.x /= 1.1;
-	//v.y /= 1.1;
-	//if (v.y > 0 && v.y < 1) v.y = 0;
-	//if (v.x > 0 && v.x < 1) v.x = 0;
-
-	auto vAmount = 100.f; //TODO: make class member
-	auto keyStates = SDL_GetKeyboardState(NULL);
-	if (keyStates[SDL_SCANCODE_W])
-	{
-		v.y = -vAmount;
-	}
-	if (keyStates[SDL_SCANCODE_S])
-	{
-		v.y = vAmount;
-	}
-	if (keyStates[SDL_SCANCODE_A])
-	{
-		v.x = -vAmount;
-		m_SpriteSheet.RequestAnimation("Left");
-	}
-	if (keyStates[SDL_SCANCODE_D])
-	{
-		v.x = vAmount;
-		m_SpriteSheet.RequestAnimation("Right");
+		if (m_CurHDirection == Left)
+			m_Physics.ApplyForce(-m_HMovementForce * DeltaTimer::GetDeltaTime() / 1000, 0);
 	}
 
-	if (v.y < 0)
+	//Animation block?
+	if (m_Jumping && m_Physics.GetVelocity().y > 0)
 	{
-		if (v.x > 0)
-			m_SpriteSheet.RequestAnimation("JumpR");
-		else
-			m_SpriteSheet.RequestAnimation("JumpL");
-	}
-	else if (v.y > 0)
-	{
-		if (v.x > 0)
-			m_SpriteSheet.RequestAnimation("FallR");
-		else
-			m_SpriteSheet.RequestAnimation("FallL");
+		m_Jumping = false;
+		m_Falling = true;
+		m_CurHDirection == Right ? m_SpriteSheet.RequestAnimation("FallR") : m_SpriteSheet.RequestAnimation("FallL");
 	}
 
-	if (v.x == 0 && v.y == 0)
+	//HACK: this need to activate when the character lands on something, because of how I'm moved the collisions away, this could prove, interesting
+	else if (!m_Jumping && m_Falling && m_Physics.GetVelocity().y > -3 && m_Physics.GetVelocity().y < 3)
 	{
-		//TODO: LdleL, IdleR
-		//m_SpriteSheet.getcurrentanimationname() == "" //enum of right animations??
-		m_SpriteSheet.RequestAnimation("IdleR");
+		m_Falling = false;
+		m_JumpCounter = 0;
+		m_CurHDirection == Right ? m_SpriteSheet.RequestAnimation("LandR") : m_SpriteSheet.RequestAnimation("LandL");
 	}
 
-	//v.y += 9.8f; //TODO: either move to the physicsobject or make a class member;
+	else if (m_Physics.GetVelocity().x == 0 && !m_Falling && !m_Jumping)
+	{
+		m_CurHDirection == Right ? m_SpriteSheet.RequestAnimation("IldeR") : m_SpriteSheet.RequestAnimation("IdleL");
+	}
 
-	m_Physics.SetVelocity(v);
+	else if (m_Physics.GetVelocity().x != 0 && !m_Falling && !m_Jumping)
+	{
+		m_CurHDirection == Right ? m_SpriteSheet.RequestAnimation("Right") : m_SpriteSheet.RequestAnimation("Left");
+	}
+
 	m_SpriteSheet.Update();
-
-	//m_X += m_XVelocity * static_cast<float>((DeltaTimer::GetDeltaTime() / 1000.0)); //TODO: deltatime returns milisecond results, may needs some fine tuning
-	//m_Y += m_YVelocity * static_cast<float>((DeltaTimer::GetDeltaTime() / 1000.0));
-
-	//if (std::abs(m_XVelocity) < 1.0f) m_XVelocity = 0.0f;
-	//if (std::abs(m_YVelocity) < 1.0f) m_YVelocity = 0.0f;
 }
 
 void Character::Render()
@@ -108,11 +82,66 @@ void Character::HandleEvents(std::vector<SDL_Event>* Events)
 
 void Character::HandleEvent(SDL_Event * Event)
 {
+	if (Event->type == SDL_KEYDOWN)
+	{
+		if (Event->key.keysym.sym == SDLK_w)
+			Jump();
 
+		if (Event->key.keysym.sym == SDLK_s)
+		{
+			//Crouch
+		}
+
+		if (Event->key.keysym.sym == SDLK_a)
+		{
+			m_HMoving = true;
+			Move(Left);
+		}
+
+		if (Event->key.keysym.sym == SDLK_d)
+		{
+			m_HMoving = true;
+			Move(Right);
+		}
+	}
+	if (Event->type == SDL_KEYUP)
+	{
+		if (Event->key.keysym.sym == SDLK_a && m_CurHDirection == Left)
+		{
+			m_HMoving = false;
+			//Move(Stopped);
+		}
+
+		if (Event->key.keysym.sym == SDLK_d && m_CurHDirection == Right)
+		{
+			m_HMoving = false;
+			//Move(Stopped);
+		}
+	}
 }
 
 void Character::SetOffset(Vector2f Location)
 {
 	m_Offset = Location;
 	m_Physics.SetOffset(Location);
+}
+
+void Character::Jump()
+{
+	if (m_MaxJumps < m_JumpCounter) return;
+
+	m_JumpCounter++;
+	m_Physics.ApplyForce(0, m_JumpForce * m_Physics.GetWeight());
+	m_Jumping = true;
+	m_Falling = false;
+
+	m_CurHDirection == Right ? m_SpriteSheet.RequestAnimation("JumpR") : m_SpriteSheet.RequestAnimation("JumpL");
+}
+
+//TODO: rename
+
+void Character::Move(HDirection M)
+{
+	m_PrevHDirection = m_CurHDirection;
+	m_CurHDirection = M;
 }

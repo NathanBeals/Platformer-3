@@ -74,6 +74,11 @@ namespace RenderImages
 			m_Physics.SetKinematic(Kinematic);
 		}
 
+		void SetStatic(bool Static)
+		{
+			m_Physics.SetStatic(Static);
+		}
+
 	private:
 		PNGImage m_Image;
 		Vector2f m_Offset = Vector2f(50, 50);
