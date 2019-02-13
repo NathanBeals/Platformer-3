@@ -57,12 +57,12 @@ void Character::Update()
 		m_CurHDirection == Right ? m_SpriteSheet.RequestAnimation("LandR") : m_SpriteSheet.RequestAnimation("LandL");
 	}
 
-	else if (abs(m_Physics.GetVelocity().x) <= 20 && !m_Falling && !m_Jumping) //TODO: arbitrary value
+	else if (abs(m_Physics.GetVelocity().x) <= 50 && !m_Falling && !m_Jumping) //TODO: arbitrary value
 	{
 		m_CurHDirection == Right ? m_SpriteSheet.RequestAnimation("IdleR") : m_SpriteSheet.RequestAnimation("IdleL");
 	}
 
-	else if (abs(m_Physics.GetVelocity().x) > 20 && !m_Falling && !m_Jumping)
+	else if (abs(m_Physics.GetVelocity().x) > 50 && !m_Falling && !m_Jumping)
 	{
 		m_CurHDirection == Right ? m_SpriteSheet.RequestAnimation("Right") : m_SpriteSheet.RequestAnimation("Left");
 	}
