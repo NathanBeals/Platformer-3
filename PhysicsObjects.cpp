@@ -42,8 +42,6 @@ void PhysicsManager::Update()
 		x->Update();
 
 	ProcessCollisions();
-	//ProcessGraivity();
-	//ProcessFriction();
 }
 
 void PhysicsManager::AddChild(PhysicsObject * Child)
@@ -60,7 +58,7 @@ void PhysicsManager::RemoveChild(PhysicsObject * Child)
 		m_Children.erase(res);
 }
 
-//TODO: Current method won't handle multiple collisions gracefully, consider
+//HACK: Current method won't handle multiple collisions gracefully, consider
 void PhysicsManager::ProcessCollisions()
 {
 	for (auto a : m_Children)
@@ -95,67 +93,38 @@ namespace
 	}
 }
 
+//HACK: just, refactor
 //HACK: this formula is not correct
 //If I make contact with perpendicular velocity, (to a superheavy object), my perpendicular velocity is completely negated
 void PhysicsManager::ProcessCollision(PhysicsObject * A, PhysicsObject * B)
 {
-	////Impact results
-	//auto impX = (A->GetWeight() * A->GetVelocity().x + B->GetWeight() * B->GetVelocity().x) / (A->GetWeight() + B->GetWeight());
-	//auto impY = (A->GetWeight() * A->GetVelocity().y + B->GetWeight() * B->GetVelocity().y) / (A->GetWeight() + B->GetWeight());
-	//
-
-
 	auto rects = GetIntersectingRects(A, B);
-
-
 	auto *lighter = A->GetWeight() < B->GetWeight() ? A : B;
 	auto *heavier = A->GetWeight() < B->GetWeight() ? B : A;
 
+	auto lV = lighter->GetVelocity();
+	auto lAngle = atan2f(lV.x, lV.y);
+	auto lCenter = GetCenter(lighter == A ? &rects.a : &rects.b);
+	auto oCenter = GetCenter(&rects.overlap);
+	float angleToOverlapCenter = std::atan2f(lCenter.y - oCenter.y, oCenter.x - lCenter.x);
 
-	enum dir
-	{
-		Up,
-		Down,
-		Left,
-		Right
-	};
+	auto friction = (1 / 5) * DeltaTimer::GetDeltaTime(); //TODO: better number
+	auto angle = .80f;  //TODO: pick actual angle
+	auto rV = lV;
+	if (std::sin(angleToOverlapCenter) < -angle) //UP
+		if (rV.y > 0) rV.y = -rV.y * friction;
 
-	//TODO: naming
-	//if (lighter->GetWeight() * 10 < heavier->GetWeight())
-	//{
-		auto lV = lighter->GetVelocity();
-		auto lAngle = atan2f(lV.x, lV.y);
-		auto lCenter = GetCenter(lighter == A ? &rects.a : &rects.b);
-		auto oCenter = GetCenter(&rects.overlap);
-		float angleToOverlapCenter = std::atan2f(lCenter.y - oCenter.y , oCenter.x - lCenter.x);
-		//auto angleInDeg = angleToOverlapCenter * (180 / M_PI);
+	if (std::sin(angleToOverlapCenter) > angle) //Down
+		if (rV.y > 0) rV.y = -rV.y * friction;
 
-		auto rV = lV;
-		if (std::sin(angleToOverlapCenter) < 0) //UP
-			if (rV.y > 0) rV.y = -rV.y /2 ;
+	if (std::cos(angleToOverlapCenter) < -angle) //Left
+		if (rV.x < 0) rV.x = -rV.x * friction;
 
-		//if (std::sin(angleToOverlapCenter) < 0) //Down
-		//	if (rV.y < 0) rV.y = -rV.y;
+	if (std::cos(angleToOverlapCenter) > angle) //Right
+		if (rV.x > 0) rV.x = -rV.x * friction;
+	lighter->SetVelocity(rV);
 
-		//if (std::cos(angleToOverlapCenter) > 0) //Left
-		//	if (rV.x > 0) rV.x = -rV.x;
-
-		//if (std::cos(angleToOverlapCenter) < 0) //Right
-		//	if (rV.x < 0) rV.x = -rV.x;
-
-		lighter->SetVelocity(rV);
-	//}
-
-
-
-
-	//Instead of set velocity try adding force
-	//A->SetVelocity(Vector2f(resXVector, resYVector));
-	//B->SetVelocity(Vector2f(resXVector, resYVector));
-	//A->SetVelocity(Vector2f(A->GetVelocity().x, resYVector));
-	//B->SetVelocity(Vector2f(B->GetVelocity().x, resYVector));
-
-	//Move out of way
+	//Move the lighter object out of the way (ignoring actual physical interactions)
 	ForceObjectOutOfWay(A, B);
 }
 
@@ -164,7 +133,9 @@ void PhysicsManager::ProcessCollision(PhysicsObject * A, PhysicsObject * B)
 void PhysicsManager::ForceObjectOutOfWay(PhysicsObject *A, PhysicsObject *B)
 {
 	auto rects = GetIntersectingRects(A, B);
-	while (rects.bValid)
+
+	int earlyExit = 0;
+	while (rects.bValid && earlyExit++ < 100)
 	{
 		auto lighter = A->GetWeight() < B->GetWeight() ? A : B;
 		auto pushee = A->GetWeight() < B->GetWeight() ? rects.a : rects.b;
@@ -240,8 +211,8 @@ void PhysicsObject::SetVelocity(Vector2f Velocity) { m_Velocity = Velocity; }
 //TODO: I've given up for now, just use the super simple one
 void PhysicsObject::ApplyFriction()
 {
-	m_Velocity.x /= 1 + (.1 * DeltaTimer::GetDeltaTime() / 1000);
-	m_Velocity.y /= 1 + (.1 * DeltaTimer::GetDeltaTime() / 1000);
+	m_Velocity.x /= 1 + (m_AirFriction * DeltaTimer::GetDeltaTime() / 1000); //TODO: member variable
+	m_Velocity.y /= 1 + (m_AirFriction * DeltaTimer::GetDeltaTime() / 1000);
 }
 
 void PhysicsObject::ApplyGravity()
@@ -259,6 +230,7 @@ void PhysicsObject::ApplyForces()
 	{
 		ApplyGravity();
 		ApplyFriction();
+		printf("Velocity: %d,%d\n", GetVelocity().x, GetVelocity().y); //TODO: remove
 	}
 
 	if (m_Static)

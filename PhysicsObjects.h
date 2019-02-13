@@ -76,8 +76,10 @@ public:
 
 	void FloorVelocity()
 	{
-		if (abs(m_Velocity.x) < 0.1f) m_Velocity.x = 0;
-		if (abs(m_Velocity.y) < 0.1f) m_Velocity.y = 0;
+		if (abs(m_Velocity.x) < 0.1f) 
+			m_Velocity.x = 0;
+		if (abs(m_Velocity.y) < 0.1f) 
+			m_Velocity.y = 0;
 	}
 
 private:
@@ -92,4 +94,5 @@ private:
 	
 	//Resistance Forces
 	float m_VGravity = 400;
+	float m_AirFriction = 2;
 };

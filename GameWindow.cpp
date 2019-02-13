@@ -61,10 +61,21 @@ void GameWindow::Main()
 
 
 	//Cubes
-	auto randomCube1 = RenderImages::SimpleImageObject(m_Renderer, "./Images/floor", &foregroundPhysicsManager, CreateSimpleBoxCollider(0, 0, 400, 50), 5000);
-	randomCube1.SetKinematic(true);
-	randomCube1.SetStatic(true);
-	randomCube1.SetOffset(Vector2f(0, 500));
+	auto floor = RenderImages::SimpleImageObject(m_Renderer, "./Images/floor", &foregroundPhysicsManager, CreateSimpleBoxCollider(0, 0, 400, 50), 5000);
+	floor.SetKinematic(true);
+	floor.SetStatic(true);
+	floor.SetOffset(Vector2f(50, 800));
+
+	auto wallL = RenderImages::SimpleImageObject(m_Renderer, "./Images/Wall50x400", &foregroundPhysicsManager, CreateSimpleBoxCollider(0, 0, 50, 400), 5000);
+	wallL.SetKinematic(true);
+	wallL.SetStatic(true);
+	wallL.SetOffset(Vector2f(0, 400));
+
+	auto wallR = RenderImages::SimpleImageObject(m_Renderer, "./Images/Wall50x400", &foregroundPhysicsManager, CreateSimpleBoxCollider(0, 0, 50, 400), 5000);
+	wallR.SetKinematic(true);
+	wallR.SetStatic(true);
+	wallR.SetOffset(Vector2f(450, 400));
+
 	//auto randomCube2 = RenderImages::SimpleImageObject(m_Renderer, "./Images/test50", &foregroundPhysicsManager, CreateSimpleBoxCollider(0, 0, 50, 50), 100);
 	//randomCube2.SetOffset(Vector2f(100, 100));
 	//auto randomCube3 = RenderImages::SimpleImageObject(m_Renderer, "./Images/test50", &foregroundPhysicsManager, CreateSimpleBoxCollider(0, 0, 50, 50), 10);
@@ -72,7 +83,7 @@ void GameWindow::Main()
 
 
 	//Test class that just prints out deltatimes
-	auto test = UpdatableClassTest();
+	//auto test = UpdatableClassTest();
 
 	auto events = std::vector<SDL_Event>();
 	while (true)

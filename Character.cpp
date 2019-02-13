@@ -57,9 +57,9 @@ void Character::Update()
 		m_CurHDirection == Right ? m_SpriteSheet.RequestAnimation("LandR") : m_SpriteSheet.RequestAnimation("LandL");
 	}
 
-	else if (m_Physics.GetVelocity().x == 0 && !m_Falling && !m_Jumping)
+	else if (m_Physics.GetVelocity().x == 0 && !m_Falling && !m_Jumping) //H
 	{
-		m_CurHDirection == Right ? m_SpriteSheet.RequestAnimation("IldeR") : m_SpriteSheet.RequestAnimation("IdleL");
+		m_CurHDirection == Right ? m_SpriteSheet.RequestAnimation("IdleR") : m_SpriteSheet.RequestAnimation("IdleL");
 	}
 
 	else if (m_Physics.GetVelocity().x != 0 && !m_Falling && !m_Jumping)
