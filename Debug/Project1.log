@@ -1,6 +1,7 @@
 ﻿  PhysicsObjects.cpp
-c:\users\beals_000\source\repos\project1\project1\physicsobjects.cpp(159): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-c:\users\beals_000\source\repos\project1\project1\physicsobjects.cpp(188): warning C4244: '/=': conversion from 'double' to 'float', possible loss of data
-c:\users\beals_000\source\repos\project1\project1\physicsobjects.cpp(189): warning C4244: '/=': conversion from 'double' to 'float', possible loss of data
-c:\users\beals_000\source\repos\project1\project1\physicsobjects.cpp(198): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+c:\users\beals_000\source\repos\project1\project1\physicsobjects.cpp(94): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\users\beals_000\source\repos\project1\project1\physicsobjects.cpp(214): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+c:\users\beals_000\source\repos\project1\project1\physicsobjects.cpp(243): warning C4244: '/=': conversion from 'double' to 'float', possible loss of data
+c:\users\beals_000\source\repos\project1\project1\physicsobjects.cpp(244): warning C4244: '/=': conversion from 'double' to 'float', possible loss of data
+c:\users\beals_000\source\repos\project1\project1\physicsobjects.cpp(253): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
   Project1.vcxproj -> C:\Users\beals_000\source\repos\Project1\Project1\Debug\Project1.exe

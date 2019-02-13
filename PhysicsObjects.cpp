@@ -87,24 +87,77 @@ bool PhysicsManager::CheckIntersection(PhysicsObject * A, PhysicsObject * B, SDL
 	return false;
 }
 
+namespace
+{
+	Vector2f GetCenter(SDL_Rect const *Rect)
+	{
+		return Vector2f(Rect->x + Rect->w / 2, Rect->y + Rect->h / 2);
+	}
+}
+
 //HACK: this formula is not correct
 //If I make contact with perpendicular velocity, (to a superheavy object), my perpendicular velocity is completely negated
 void PhysicsManager::ProcessCollision(PhysicsObject * A, PhysicsObject * B)
 {
-	//New Velocities
-	auto resXVector = (A->GetWeight() * A->GetVelocity().x + B->GetWeight() * B->GetVelocity().x) / (A->GetWeight() + B->GetWeight());
-	auto resYVector = (A->GetWeight() * A->GetVelocity().y + B->GetWeight() * B->GetVelocity().y) / (A->GetWeight() + B->GetWeight());
-	
+	////Impact results
+	//auto impX = (A->GetWeight() * A->GetVelocity().x + B->GetWeight() * B->GetVelocity().x) / (A->GetWeight() + B->GetWeight());
+	//auto impY = (A->GetWeight() * A->GetVelocity().y + B->GetWeight() * B->GetVelocity().y) / (A->GetWeight() + B->GetWeight());
+	//
+
+
+	auto rects = GetIntersectingRects(A, B);
+
+
+	auto *lighter = A->GetWeight() < B->GetWeight() ? A : B;
+	auto *heavier = A->GetWeight() < B->GetWeight() ? B : A;
+
+
+	enum dir
+	{
+		Up,
+		Down,
+		Left,
+		Right
+	};
+
+	//TODO: naming
+	//if (lighter->GetWeight() * 10 < heavier->GetWeight())
+	//{
+		auto lV = lighter->GetVelocity();
+		auto lAngle = atan2f(lV.x, lV.y);
+		auto lCenter = GetCenter(lighter == A ? &rects.a : &rects.b);
+		auto oCenter = GetCenter(&rects.overlap);
+		float angleToOverlapCenter = std::atan2f(lCenter.y - oCenter.y , oCenter.x - lCenter.x);
+		//auto angleInDeg = angleToOverlapCenter * (180 / M_PI);
+
+		auto rV = lV;
+		if (std::sin(angleToOverlapCenter) < 0) //UP
+			if (rV.y > 0) rV.y = -rV.y /2 ;
+
+		//if (std::sin(angleToOverlapCenter) < 0) //Down
+		//	if (rV.y < 0) rV.y = -rV.y;
+
+		//if (std::cos(angleToOverlapCenter) > 0) //Left
+		//	if (rV.x > 0) rV.x = -rV.x;
+
+		//if (std::cos(angleToOverlapCenter) < 0) //Right
+		//	if (rV.x < 0) rV.x = -rV.x;
+
+		lighter->SetVelocity(rV);
+	//}
+
+
+
+
 	//Instead of set velocity try adding force
-	A->SetVelocity(Vector2f(resXVector, resYVector));
-	B->SetVelocity(Vector2f(resXVector, resYVector));
+	//A->SetVelocity(Vector2f(resXVector, resYVector));
+	//B->SetVelocity(Vector2f(resXVector, resYVector));
 	//A->SetVelocity(Vector2f(A->GetVelocity().x, resYVector));
 	//B->SetVelocity(Vector2f(B->GetVelocity().x, resYVector));
 
 	//Move out of way
 	ForceObjectOutOfWay(A, B);
 }
-
 
 //Temporarily Modify velocity to push away rect centers until object is free
 //HACK: this code will just push away from the center until a good position is reached, that wont look right for long or tall rects 
