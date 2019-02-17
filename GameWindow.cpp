@@ -57,7 +57,7 @@ void GameWindow::Main()
 	auto exitHandler = EHandlers::ProgramExitHandler(&m_Exiting); //Handles Escape + top right X application exiting by modifying the bQuit bool
 
 	auto backgroundImage = RenderImages::PNGImage(m_Renderer, "./Images/base");
-	auto playerCharacter = Character(m_Renderer, "./Images/SpriteSheets/MainCharacterSpriteSheet_56x56", &foregroundPhysicsManager, CreateSimpleBoxCollider(0,0, 56, 56), 10); //TODO: offsets don't work, you should know why
+	auto playerCharacter = Character(m_Renderer, "./Images/SpriteSheets/MainCharacterSpriteSheet_56x56", &foregroundPhysicsManager, CreateSimpleBoxCollider(0,0, 56, 56), 20); //TODO: offsets don't work, you should know why
 
 
 	//Cubes
@@ -77,9 +77,9 @@ void GameWindow::Main()
 	wallR.SetOffset(Vector2f(450, 400));
 
 	auto randomCube2 = RenderImages::SimpleImageObject(m_Renderer, "./Images/test50", &foregroundPhysicsManager, CreateSimpleBoxCollider(0, 0, 50, 50), 100);
-	randomCube2.SetOffset(Vector2f(100, 100));
+	randomCube2.SetOffset(Vector2f(150, 100));
 	auto randomCube3 = RenderImages::SimpleImageObject(m_Renderer, "./Images/test50", &foregroundPhysicsManager, CreateSimpleBoxCollider(0, 0, 50, 50), 10);
-	randomCube3.SetOffset(Vector2f(200, 200));
+	randomCube3.SetOffset(Vector2f(280, 200));
 
 
 	//Test class that just prints out deltatimes

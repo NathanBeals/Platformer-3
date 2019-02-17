@@ -105,8 +105,8 @@ void PhysicsManager::ProcessCollision(PhysicsObject * A, PhysicsObject * B)
 	auto lV = lighter->GetVelocity();
 	auto lAngle = atan2f(lV.x, lV.y);
 	auto lCenter = GetCenter(lighter == A ? &rects.a : &rects.b);
-	auto oCenter = GetCenter(&rects.overlap);
-	float angleToOverlapCenter = std::atan2f(lCenter.y - oCenter.y, oCenter.x - lCenter.x);
+	auto ovCenter = GetCenter(&rects.overlap);
+	float angleToOverlapCenter = std::atan2f(lCenter.y - ovCenter.y, ovCenter.x - lCenter.x);
 
 	auto friction = (1 / 5) * DeltaTimer::GetDeltaTime(); //TODO: better number
 	auto angle = .80f;  //TODO: pick actual angle
@@ -133,27 +133,31 @@ void PhysicsManager::ProcessCollision(PhysicsObject * A, PhysicsObject * B)
 void PhysicsManager::ForceObjectOutOfWay(PhysicsObject *A, PhysicsObject *B)
 {
 	auto rects = GetIntersectingRects(A, B);
+	auto overlap = rects.overlap;
+	auto *lighter = A->GetWeight() < B->GetWeight() ? A : B;
+	auto *heavier = A->GetWeight() < B->GetWeight() ? B : A;
 
-	int earlyExit = 0;
-	while (rects.bValid && earlyExit++ < 100)
+	//Move out of the overlapping rect
+	auto lCenter = GetCenter(lighter == A ? &rects.a : &rects.b);
+	auto ovCenter = GetCenter(&rects.overlap);
+
+	//Just move the lighter object out of the intersection box
+	auto newOffset = lighter->GetOffset();
+	if (overlap.w < overlap.h)
 	{
-		auto lighter = A->GetWeight() < B->GetWeight() ? A : B;
-		auto pushee = A->GetWeight() < B->GetWeight() ? rects.a : rects.b;
-		auto pusher = rects.overlap;
-
-		Vector2f objectCenter = Vector2f(static_cast<float>(pushee.x + pushee.w / 2), static_cast<float>(pushee.y + pushee.h / 2));
-		Vector2f overlapCenter = Vector2f(static_cast<float>(pusher.x + pusher.w / 2), static_cast<float>(pusher.y + pusher.h / 2));
-		Vector2f escVector = objectCenter - overlapCenter;
-
-		if (objectCenter == overlapCenter) return; //Wait for resolution by vector movement
-
-		Vector2f oVector = lighter->GetVelocity();
-		lighter->SetVelocity(escVector);
-		lighter->Update(); //Move with velocity, this should update the colliders and eventualy move it out of the way (or crash the game, prolly crash the game)
-		lighter->SetVelocity(oVector);
-
-		rects = GetIntersectingRects(A, B);
+		if (ovCenter.x < lCenter.x)
+			newOffset.x += overlap.w / 2;
+		else if (ovCenter.x > lCenter.x)
+			newOffset.x -= overlap.w / 2;
 	}
+	else
+	{
+		if (ovCenter.y < lCenter.y)
+			newOffset.y += overlap.h / 2;
+		else if (ovCenter.y > lCenter.y)
+			newOffset.y -= overlap.h / 2;
+	}
+	lighter->SetOffset(newOffset);
 }
 
 
