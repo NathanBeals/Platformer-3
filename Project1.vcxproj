@@ -136,6 +136,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Character.h" />
+    <ClInclude Include="Collidable.h" />
     <ClInclude Include="EventHandlers.h" />
     <ClInclude Include="PhysicsObjects.h" />
     <ClInclude Include="GameWindow.h" />

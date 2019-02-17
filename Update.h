@@ -52,12 +52,12 @@ public:
 
 	void Update() override;
 	void UpdateDeltaTime();
-	static double GetDeltaTime();
+	static float GetDeltaTime();
 
 private:
 	uint64_t m_Now = 0;
 	uint64_t m_Last = 0;
-	double m_DeltaTime = 0.0;
+	float m_DeltaTime = 0.0;
 
 	DeltaTimer() {};
 	~DeltaTimer() {};

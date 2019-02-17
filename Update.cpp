@@ -84,10 +84,10 @@ void DeltaTimer::UpdateDeltaTime()
 	auto dork = m_Now - m_Last;
 	auto whatever = SDL_GetPerformanceFrequency();
 
-	m_DeltaTime = static_cast<double>((m_Now - m_Last) * 1000 / static_cast<double>(SDL_GetPerformanceFrequency()));
+	m_DeltaTime = static_cast<float>((m_Now - m_Last) * 1000 / static_cast<float>(SDL_GetPerformanceFrequency()));
 }
 
-double DeltaTimer::GetDeltaTime() 
+float DeltaTimer::GetDeltaTime() 
 { 
 	return GetInstance().m_DeltaTime;
 }

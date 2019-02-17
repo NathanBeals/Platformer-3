@@ -71,5 +71,8 @@
     <ClInclude Include="PhysicsVectors.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Collidable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -89,7 +89,7 @@ namespace
 {
 	Vector2f GetCenter(SDL_Rect const *Rect)
 	{
-		return Vector2f(Rect->x + Rect->w / 2, Rect->y + Rect->h / 2);
+		return Vector2f(Rect->x + Rect->w / 2.0f, Rect->y + Rect->h / 2.0f);
 	}
 }
 
@@ -108,7 +108,7 @@ void PhysicsManager::ProcessCollision(PhysicsObject * A, PhysicsObject * B)
 	auto ovCenter = GetCenter(&rects.overlap);
 	float angleToOverlapCenter = std::atan2f(lCenter.y - ovCenter.y, ovCenter.x - lCenter.x);
 
-	auto friction = (1 / 5) * DeltaTimer::GetDeltaTime(); //TODO: better number
+	float friction = (1 / 5) * DeltaTimer::GetDeltaTime(); //TODO: better number
 	auto angle = .80f;  //TODO: pick actual angle
 	auto rV = lV;
 	if (std::sin(angleToOverlapCenter) < -angle) //UP
@@ -234,7 +234,7 @@ void PhysicsObject::ApplyForces()
 	{
 		ApplyGravity();
 		ApplyFriction();
-		printf("Velocity: %d,%d\n", GetVelocity().x, GetVelocity().y);
+		printf("Velocity: %f,%f-\n", GetVelocity().x, GetVelocity().y);
 	}
 
 	if (m_Static)
