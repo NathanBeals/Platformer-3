@@ -247,3 +247,11 @@ void PhysicsObject::ApplyForce(float x, float y)
 {
 	m_Velocity += Vector2f(x / m_Weight, y / m_Weight);
 }
+
+void PhysicsObject::FloorVelocity()
+{
+	if (abs(m_Velocity.x) < 0.1f)
+		m_Velocity.x = 0;
+	if (abs(m_Velocity.y) < 0.1f)
+		m_Velocity.y = 0;
+}

@@ -74,13 +74,7 @@ public:
 	void SetKinematic(bool Kinematic) { m_Kinematic = Kinematic; }
 	void SetStatic(bool Static) { m_Static = Static; }
 
-	void FloorVelocity()
-	{
-		if (abs(m_Velocity.x) < 0.1f) 
-			m_Velocity.x = 0;
-		if (abs(m_Velocity.y) < 0.1f) 
-			m_Velocity.y = 0;
-	}
+	void FloorVelocity();
 
 private:
 	PhysicsManager* m_PhysicsManager = nullptr;
