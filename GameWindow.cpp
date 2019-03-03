@@ -58,7 +58,7 @@ void GameWindow::Main()
 
 	auto backgroundImage = RenderImages::PNGImage(m_Renderer, "./Images/base");
 	//TODO: player needs a spawn position
-	auto playerCharacter = Character(m_Renderer, "./Images/SpriteSheets/MainCharacterSpriteSheet_56x56", &foregroundPhysicsManager, CreateSimpleBoxCollider(0,0, 56, 56), 20); //TODO: offsets don't work, you should know why
+	auto playerCharacter = Character(m_Renderer, "./Images/SpriteSheets/MainCharacterSpriteSheet_56x56", &foregroundPhysicsManager, CreateSimpleBoxCollider(14, 0, 28, 56), 20); //TODO: offsets don't work, you should know why
 
 
 	//Cubes

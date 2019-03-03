@@ -51,10 +51,9 @@ public:
 	PhysicsObject(PhysicsManager* PhysicsManager, std::vector<SDL_Rect> Colliders, float Weight, Vector2f *Offset);
 	~PhysicsObject();
 
-	std::vector<SDL_Rect> const GetRects() const;
-
 	void Update();
 
+	std::vector<SDL_Rect> const GetRects() const;
 	float GetWeight() const;
 	Vector2f GetOffset() const;
 	Vector2f GetVelocity() const;

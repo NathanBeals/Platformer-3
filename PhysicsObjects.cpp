@@ -180,7 +180,13 @@ PhysicsObject::~PhysicsObject()
 
 std::vector<SDL_Rect> const PhysicsObject::GetRects() const
 {
-	return m_Colliders;
+	auto adjColliders = std::vector<SDL_Rect>(m_Colliders);
+	for (auto &x : adjColliders)
+	{
+		x.x += static_cast<int>(std::round(m_Offset.x));
+		x.y += static_cast<int>(std::round(m_Offset.y));
+	}
+	return adjColliders;
 }
 
 void PhysicsObject::Update()
@@ -197,15 +203,9 @@ Vector2f PhysicsObject::GetVelocity() const { return m_Velocity; }
 
 void PhysicsObject::SetWeight(float Weight) { m_Weight = Weight; }
 
-void PhysicsObject::SetOffset(Vector2f Offset)
+void PhysicsObject::SetOffset(Vector2f Offset) //HACK: overwriting the offsets will break the offsets of the actual collider
 {
 	m_Offset = Offset;
-	for (auto &x : m_Colliders)
-	{
-		x.x = static_cast<int>(std::round(m_Offset.x));
-		x.y = static_cast<int>(std::round(m_Offset.y));
-	}
-
 	if (m_ParentOffset != nullptr)
 		*m_ParentOffset = m_Offset;
 }
